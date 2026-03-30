@@ -1,3 +1,4 @@
+
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
@@ -13,6 +14,11 @@ app.use(express.json());
 // app.use('/api/auth', require('./routes/auth'));
 // app.use('/api/users', require('./routes/users'));
 // app.use('/api/posts', require('./routes/posts'));
+// routes (put this BEFORE 404)
+
+app.get("/test", (req, res) => {
+  res.json({ message: "API working" });
+});
 
 // ── 404 handler — unhandled routes return JSON ──────────
 app.use((req, res) => {
