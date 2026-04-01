@@ -1,9 +1,4 @@
-app.use('/api/auth', require('./routes/auth'));
-const userRoutes = require('./routes/users')
-app.use('/api/users', userRoutes)
-Delete all <<<<<<<, =======, >>>>>>> lines.
-server/routes/users.js — select all and replace with Ayesha's version (the bottom one):
-jsconst express = require('express')
+const express = require('express')
 const router = express.Router()
 const User = require('../models/User')
 const auth = require('../middleware/auth')
