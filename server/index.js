@@ -16,8 +16,8 @@ app.use(express.json());
 app.use('/api/auth', require('./routes/auth'));
 const userRoutes = require('./routes/users')
 app.use('/api/users', userRoutes)
-// app.use('/api/users', require('./routes/users'));
-app.use('/api/posts', require('./routes/posts'));
+const postRoutes = require('./routes/posts')
+app.use('/api/posts', postRoutes)
 // routes (put this BEFORE 404)
 
 app.get("/test", auth, (req, res) => {
