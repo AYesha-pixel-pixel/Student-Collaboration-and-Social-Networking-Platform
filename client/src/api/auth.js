@@ -1,7 +1,7 @@
 import api from './index'
 
-export const registerUser = async (name, email, password) => {
-  const response = await api.post('/auth/register', { name, email, password })
+export const registerUser = async (name, username, email, password) => {
+  const response = await api.post('/auth/register', { name, username, email, password })
   return response.data
 }
 

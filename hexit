@@ -1,0 +1,32 @@
+[33m5a734bd[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m .
+[33m21ce858[m Merge branch 'main' of https://github.com/AlishbahRiaz22/Student-Collaboration-and-Social-Networking-Platform into HEAD Merge
+[33mab93df0[m Added Post functionality , postng something , removing post , editing post . Added its routes in server/routes , and index.js . fixed error in register.jsx
+[33m83120b3[m like/unlike route, LikeButton component, posts API helper, added comment routes
+[33md0c48d9[m Profile page UI, edit bio, fix auth middleware userId mismatch, fix JWT secret mismatch
+[33md010036[m fix: clean up users.js
+[33mee2ef04[m fix ProtectedRoute loading state, AuthContext loading flag, users route setup, resolved merge conflicts
+[33m7b0a104[m fix ProtectedRoute loading state, users route, resolve merge conflict in index.js
+[33m8ee2efd[m added get , put functions in users/routes , added routes in index.js , implemented follow , unfollow , get user id , update profile name fucntions
+[33mc330dd1[m Updated Register.jsx , implemented login , and register functions as well as basic front end
+[33mc0a8e76[m index , user , auth changes
+[33m984d1be[m Containerize backend
+[33maa02676[m Add post, comment, modify user model and endpoint, add middleware and auth controller, axios token store
+[33md19d10d[m Add axios token storage for auth
+[33m4b962e9[m Fix all models, refine user auth, clean endpoints
+[33mf9b92cb[m Modify user model, add post and comment model, add endpoints
+[33m2a8a7b3[m Register and Login forms with validation, token storage, auth API helpers
+[33m51ed3c7[m CreateD models/User.js , routes/auth.js
+[33m4175dd3[m add model config: comments, posts, users
+[33md963a74[m commiting those uncommitted changes mentioned in previous commit ( decode token on load and protect feed and profile) + ( JWT middle ware and protect /test)
+[33m2a8a770[m 1. (frontend-auth): decode token on load and protect Feed/Profile 2. (auth-middleware): add JWT middleware and protect /test 3. added node_modules to gitignore to avoid huge diffs
+[33mff6ba5b[m restore Navbar, Footer and CSS files lost during Vite migration
+[33md466343[m Merge pull request #2 from AlishbahRiaz22/feature_mongodb_gitignore
+[33mf6ad1b5[m Setup React app with Vite, routing, folder structure, AuthContext, ProtectedRoute, Axios instance
+[33m7268ed7[m tested mongodb connection and server connection , updated gitignore ,
+[33mfb03f4a[m Initialze axios, mongodb
+[33m40a7e5c[m feat: add Navbar/Footer layout + global styles; fix entrypoints; add backend 404 JSON handler
+[33mf02d92f[m  added Navbar/Footer components + global styles; added API 404 JSON handler; added .env with dummy data for now
+[33m245bec1[m Merge pull request #1 from AlishbahRiaz22/prettier_addition
+[33mc992a44[m[33m ([m[1;31morigin/prettier_addition[m[33m)[m added prettier file
+[33m7d96230[m Added client and server folders
+[33maa3251b[m Initial commit

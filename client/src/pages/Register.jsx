@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext'
 
 const Register = () => {
   const [name, setName] = useState('')
+  const [username, setUsername] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
@@ -19,12 +20,13 @@ const Register = () => {
 
     // Frontend validation
     if (!name.trim()) return setError('Name is required')
+    if (!username.trim()) return setError('Username is required')
     if (!email.trim()) return setError('Email is required')
     if (password.length < 6) return setError('Password must be at least 6 characters')
 
     try {
       setLoading(true)
-      const data = await registerUser(name, email, password)
+      const data = await registerUser(name, username, email, password)
       login(data.user, data.token)
       localStorage.setItem('token', data.token)
       navigate('/')
@@ -47,6 +49,16 @@ const Register = () => {
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="Your name"
+            style={{ width: '100%', padding: '0.5rem' }}
+          />
+        </div>
+        <div style={{ marginBottom: '1rem' }}>
+          <label>Username</label><br />
+          <input
+            type="text"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            placeholder="Your username"
             style={{ width: '100%', padding: '0.5rem' }}
           />
         </div>

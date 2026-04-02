@@ -6,10 +6,13 @@ const User = require("../models/User");
 
 // REGISTER
 router.post("/register", async (req, res) => {
+    console.log("REGISTER ROUTE HIT");
   try {
     const { name, username, email, password } = req.body;
 
-    const existingUser = await User.findOne({ email });
+    const existingUser = await User.findOne({ 
+      $or: [{ email }, { username }]
+    });
     if (existingUser)
       return res.status(400).json({ error: "User already exists" });
 
@@ -17,7 +20,7 @@ router.post("/register", async (req, res) => {
       name,
       username,
       email,
-      password // The User model will handle hashing this in the pre('save') hook
+      password // password will be hashed by the Mongoose pre-save hook
     });
 
     await user.save();
@@ -43,7 +46,7 @@ router.post("/login", async (req, res) => {
 
     const token = jwt.sign(
       { userId: user._id },
-      "SECRET_KEY",
+      process.env.JWT_SECRET,
       { expiresIn: "1d" }
     );
 
@@ -52,5 +55,5 @@ router.post("/login", async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
-
+console.log("AUTH ROUTES LOADED");
 module.exports = router;
