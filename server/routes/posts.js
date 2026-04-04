@@ -1,5 +1,6 @@
 const express = require('express')
 const router = express.Router()
+const mongoose = require('mongoose')
 const Post = require('../models/Post')
 const auth = require('../middleware/auth')
 
@@ -25,6 +26,24 @@ router.get('/feed', auth, async (req, res) => {
     const followingIds = currentUser.following
 
     const posts = await Post.find({ userId: { $in: followingIds } })
+      .sort({ createdAt: -1 })
+      .populate('userId', 'name username')
+
+    res.json(posts)
+  } catch (err) {
+    res.status(500).json({ error: err.message })
+  }
+})
+
+// GET /api/posts/user/:userId — all posts by a specific user
+router.get('/user/:userId', async (req, res) => {
+  try {
+    const { userId } = req.params
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      return res.status(400).json({ error: 'Invalid user id' })
+    }
+
+    const posts = await Post.find({ userId })
       .sort({ createdAt: -1 })
       .populate('userId', 'name username')
 

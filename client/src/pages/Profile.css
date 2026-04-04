@@ -1,0 +1,139 @@
+.profile-card {
+	background: #fff;
+	border: 1px solid #e0e0e0;
+	border-radius: 12px;
+	padding: 1rem;
+	margin-bottom: 1rem;
+}
+
+.profile-title {
+	margin: 0 0 0.8rem;
+	font-size: 1.3rem;
+	color: #111;
+}
+
+.profile-error {
+	color: #cc0000;
+	margin: 0 0 0.6rem;
+}
+
+.profile-success {
+	color: #14853d;
+	margin: 0 0 0.6rem;
+}
+
+.profile-meta {
+	display: grid;
+	gap: 0.45rem;
+	margin-bottom: 1rem;
+}
+
+.profile-meta-item {
+	color: #222;
+	font-size: 0.95rem;
+}
+
+.profile-field {
+	margin-bottom: 0.9rem;
+}
+
+.profile-field label {
+	display: inline-block;
+	margin-bottom: 0.4rem;
+	font-size: 0.9rem;
+	color: #555;
+}
+
+.profile-field p {
+	margin: 0;
+	color: #222;
+	line-height: 1.5;
+}
+
+.profile-input,
+.profile-textarea {
+	width: 100%;
+	padding: 0.6rem;
+	border-radius: 8px;
+	border: 1px solid #ddd;
+	font-size: 0.95rem;
+	font-family: inherit;
+	box-sizing: border-box;
+	outline: none;
+}
+
+.profile-input:focus,
+.profile-textarea:focus {
+	border-color: #378add;
+}
+
+.profile-textarea {
+	resize: vertical;
+	min-height: 90px;
+}
+
+.profile-actions-row {
+	display: flex;
+	gap: 0.5rem;
+}
+
+.profile-btn {
+	padding: 0.7rem 1rem;
+	border-radius: 8px;
+	border: 1px solid #ddd;
+	cursor: pointer;
+	font-size: 0.92rem;
+}
+
+.profile-btn:disabled {
+	cursor: not-allowed;
+	opacity: 0.7;
+}
+
+.profile-btn-primary {
+	border: none;
+	background: #378add;
+	color: #fff;
+}
+
+.profile-btn-primary:hover:not(:disabled) {
+	background: #2a6fbb;
+}
+
+.profile-btn-secondary {
+	background: #fff;
+	color: #333;
+}
+
+.profile-btn-secondary:hover:not(:disabled) {
+	background: #f5f5f5;
+}
+
+.profile-btn-block {
+	width: 100%;
+	margin-top: 0.5rem;
+}
+
+.profile-login-hint {
+	margin: 0.3rem 0 0.75rem;
+	color: #666;
+}
+
+.profile-link {
+	color: #378add;
+	text-decoration: none;
+}
+
+.profile-link:hover {
+	text-decoration: underline;
+}
+
+.profile-posts-section {
+	margin-top: 0.25rem;
+}
+
+.profile-posts-title {
+	margin: 0 0 0.75rem;
+	font-size: 1.05rem;
+	color: #222;
+}

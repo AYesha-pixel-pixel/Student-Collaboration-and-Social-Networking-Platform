@@ -1,16 +1,23 @@
 import { useState, useEffect, useCallback } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useAuth } from '../context/useAuth'
 import api from '../api/index'
 import FollowButton from '../components/FollowButton'
+import PostCard from '../components/PostCard'
+import './Feed.css'
+import './Profile.css'
 
 const Profile = () => {
+  const navigate = useNavigate()
   const { id, username } = useParams()
-  const { user } = useAuth()
+  const { user, logout } = useAuth()
   const [profile, setProfile] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [message, setMessage] = useState('')
+  const [userPosts, setUserPosts] = useState([])
+  const [postsLoading, setPostsLoading] = useState(false)
+  const [postsError, setPostsError] = useState('')
   const [editing, setEditing] = useState(false)
   const [bio, setBio] = useState('')
   const [name, setName] = useState('')
@@ -35,6 +42,16 @@ const Profile = () => {
   const isFollowing = profile?.followers?.includes(currentUserId)
   const targetUserId = profile?._id || id
 
+  const handleProfileClick = () => {
+    if (!currentUserId) return
+    navigate(`/profile/${currentUserId}`)
+  }
+
+  const handleLogout = () => {
+    logout()
+    navigate('/login', { replace: true })
+  }
+
   const fetchProfile = useCallback(async () => {
     try {
       setLoading(true)
@@ -51,9 +68,31 @@ const Profile = () => {
     }
   }, [id, username])
 
+  const fetchUserPosts = useCallback(async (selectedUserId) => {
+    if (!selectedUserId) {
+      setUserPosts([])
+      return
+    }
+
+    try {
+      setPostsLoading(true)
+      setPostsError('')
+      const res = await api.get(`/posts/user/${selectedUserId}`)
+      setUserPosts(res.data)
+    } catch {
+      setPostsError('Failed to load user posts')
+    } finally {
+      setPostsLoading(false)
+    }
+  }, [])
+
   useEffect(() => {
     fetchProfile()
   }, [fetchProfile])
+
+  useEffect(() => {
+    fetchUserPosts(profile?._id)
+  }, [profile?._id, fetchUserPosts])
 
   const handleEditStart = () => {
     setName(profile?.name || '')
@@ -108,90 +147,152 @@ const Profile = () => {
   }
 
   if (loading) {
-    return <div style={{ textAlign: 'center', marginTop: '100px' }}>Loading profile...</div>
-  }
-
-  if (!profile) {
-    return <div style={{ textAlign: 'center', marginTop: '100px', color: 'red' }}>{error || 'User not found'}</div>
+    return (
+      <div className="feed-page">
+        <nav className="feed-nav">
+          <div className="feed-nav-left">
+            <span className="feed-logo">StudentNet</span>
+            <Link to="/feed" className="nav-link">Feed</Link>
+            <Link to="/explore" className="nav-link">Explore</Link>
+          </div>
+          <div className="feed-nav-right">
+            <button onClick={handleProfileClick} disabled={!currentUserId} className="nav-btn">
+              Profile
+            </button>
+            <button onClick={handleLogout} className="nav-btn nav-btn-logout">
+              Logout
+            </button>
+          </div>
+        </nav>
+        <div className="feed-container">
+          <div className="feed-status">Loading profile...</div>
+        </div>
+      </div>
+    )
   }
 
   return (
-    <div style={{ maxWidth: '440px', margin: '80px auto', padding: '2rem', border: '1px solid #ddd', borderRadius: '12px', background: '#fff' }}>
-      <h2>Profile</h2>
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-      {message && <p style={{ color: 'green' }}>{message}</p>}
-
-      <div style={{ marginBottom: '1rem' }}>
-        <strong>Username:</strong> {profile.username}
-      </div>
-      <div style={{ marginBottom: '1rem' }}>
-        <strong>Followers:</strong> {profile.followers?.length || 0}
-      </div>
-      <div style={{ marginBottom: '1rem' }}>
-        <strong>Following:</strong> {profile.following?.length || 0}
-      </div>
-
-      <div style={{ marginBottom: '1rem' }}>
-        <label>Name</label><br />
-        {editing ? (
-          <input
-            type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="Your name"
-            style={{ width: '100%', padding: '0.5rem' }}
-          />
-        ) : (
-          <p>{profile.name || '-'}</p>
-        )}
-      </div>
-
-      <div style={{ marginBottom: '1rem' }}>
-        <label>Bio</label><br />
-        {editing ? (
-          <textarea
-            value={bio}
-            onChange={(e) => setBio(e.target.value)}
-            rows={4}
-            placeholder="Write your bio"
-            style={{ width: '100%', padding: '0.5rem' }}
-          />
-        ) : (
-          <p>{profile.bio || 'No bio yet.'}</p>
-        )}
-      </div>
-
-      {editing ? (
-        <div style={{ display: 'flex', gap: '0.5rem' }}>
-          <button onClick={handleSave} disabled={saving} style={{ width: '100%', padding: '0.75rem' }}>
-            {saving ? 'Saving...' : 'Save'}
+    <div className="feed-page">
+      <nav className="feed-nav">
+        <div className="feed-nav-left">
+          <span className="feed-logo">StudentNet</span>
+          <Link to="/feed" className="nav-link">Feed</Link>
+          <Link to="/explore" className="nav-link">Explore</Link>
+        </div>
+        <div className="feed-nav-right">
+          <button onClick={handleProfileClick} disabled={!currentUserId} className="nav-btn">
+            Profile
           </button>
-          <button onClick={handleEditCancel} disabled={saving} style={{ width: '100%', padding: '0.75rem' }}>
-            Cancel
+          <button onClick={handleLogout} className="nav-btn nav-btn-logout">
+            Logout
           </button>
         </div>
-      ) : (
-        <>
-          {isOwnProfile ? (
-            <button onClick={handleEditStart} style={{ width: '100%', padding: '0.75rem', marginBottom: '0.5rem' }}>
-              Edit Profile
-            </button>
-          ) : !isLoggedIn ? (
-            <p style={{ marginBottom: '0.75rem' }}>
-              <Link to="/login">Login</Link> to follow this user.
-            </p>
-         ) : (
-            <FollowButton
-              isFollowing={isFollowing}
-              followLoading={followLoading}
-              onToggle={handleFollowToggle}
-            />
-          )}
-          <button onClick={fetchProfile} style={{ width: '100%', padding: '0.75rem' }}>
-            Refresh
-          </button>
-        </>
-      )}
+      </nav>
+
+      <div className="feed-container">
+        {!profile ? (
+          <div className="feed-status feed-error">{error || 'User not found'}</div>
+        ) : (
+          <>
+            <div className="profile-card">
+              <h2 className="profile-title">Profile</h2>
+              {error && <p className="profile-error">{error}</p>}
+              {message && <p className="profile-success">{message}</p>}
+
+              <div className="profile-meta">
+                <div className="profile-meta-item"><strong>Username:</strong> {profile.username}</div>
+                <div className="profile-meta-item"><strong>Followers:</strong> {profile.followers?.length || 0}</div>
+                <div className="profile-meta-item"><strong>Following:</strong> {profile.following?.length || 0}</div>
+              </div>
+
+              <div className="profile-field">
+                <label>Name</label>
+                {editing ? (
+                  <input
+                    type="text"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="Your name"
+                    className="profile-input"
+                  />
+                ) : (
+                  <p>{profile.name || '-'}</p>
+                )}
+              </div>
+
+              <div className="profile-field">
+                <label>Bio</label>
+                {editing ? (
+                  <textarea
+                    value={bio}
+                    onChange={(e) => setBio(e.target.value)}
+                    rows={4}
+                    placeholder="Write your bio"
+                    className="profile-textarea"
+                  />
+                ) : (
+                  <p>{profile.bio || 'No bio yet.'}</p>
+                )}
+              </div>
+
+              {editing ? (
+                <div className="profile-actions-row">
+                  <button onClick={handleSave} disabled={saving} className="profile-btn profile-btn-primary">
+                    {saving ? 'Saving...' : 'Save'}
+                  </button>
+                  <button onClick={handleEditCancel} disabled={saving} className="profile-btn profile-btn-secondary">
+                    Cancel
+                  </button>
+                </div>
+              ) : (
+                <>
+                  {isOwnProfile ? (
+                    <button onClick={handleEditStart} className="profile-btn profile-btn-primary profile-btn-block">
+                      Edit Profile
+                    </button>
+                  ) : !isLoggedIn ? (
+                    <p className="profile-login-hint">
+                      <Link to="/login" className="profile-link">Login</Link> to follow this user.
+                    </p>
+                  ) : (
+                    <FollowButton
+                      isFollowing={isFollowing}
+                      isLoggedIn={isLoggedIn}
+                      followLoading={followLoading}
+                      onToggle={handleFollowToggle}
+                    />
+                  )}
+                  <button onClick={fetchProfile} className="profile-btn profile-btn-secondary profile-btn-block">
+                    Refresh
+                  </button>
+                </>
+              )}
+            </div>
+
+            <div className="profile-posts-section">
+              <h3 className="profile-posts-title">
+                {isOwnProfile ? 'Your Posts' : `${profile.name || profile.username}'s Posts`}
+              </h3>
+
+              {postsLoading && <div className="feed-status">Loading posts...</div>}
+              {postsError && <div className="feed-status feed-error">{postsError}</div>}
+              {!postsLoading && !postsError && userPosts.length === 0 && (
+                <div className="feed-status">No posts yet.</div>
+              )}
+
+              {userPosts.map((post) => (
+                <PostCard
+                  key={post._id}
+                  post={post}
+                  currentUserId={currentUserId}
+                  onDelete={(deletedId) => setUserPosts((prev) => prev.filter((p) => p._id !== deletedId))}
+                  onUpdate={(updated) => setUserPosts((prev) => prev.map((p) => (p._id === updated._id ? updated : p)))}
+                />
+              ))}
+            </div>
+          </>
+        )}
+      </div>
     </div>
   )
 }
