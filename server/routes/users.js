@@ -6,6 +6,31 @@ const auth = require('../middleware/auth')
 
 const isValidObjectId = (id) => mongoose.Types.ObjectId.isValid(id)
 
+// GET /api/users/suggestions — suggested users to follow (protected)
+router.get('/suggestions', auth, async (req, res) => {
+  try {
+    const currentUser = await User.findById(req.user.userId).select('following')
+    if (!currentUser) {
+      return res.status(404).json({ error: 'Current user not found' })
+    }
+
+    const suggestions = await User.find({ _id: { $ne: req.user.userId } })
+      .select('name username followers following')
+      .limit(6)
+
+    const data = suggestions.map((u) => ({
+      _id: u._id,
+      name: u.name,
+      username: u.username,
+      isFollowing: currentUser.following.some((id) => id.toString() === u._id.toString())
+    }))
+
+    res.json(data)
+  } catch (err) {
+    res.status(500).json({ error: 'Server error' })
+  }
+})
+
 // GET /api/users/:identifier — get any user's profile by id or username
 router.get('/:identifier', async (req, res) => {
   try {

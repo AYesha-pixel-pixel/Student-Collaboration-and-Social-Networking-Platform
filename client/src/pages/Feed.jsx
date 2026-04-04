@@ -25,6 +25,8 @@ const Feed = () => {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [feedMode, setFeedMode] = useState('all')  // 'all' or 'smart' — Day 5
+  const [suggestedUsers, setSuggestedUsers] = useState([])
+  const [suggestionsLoading, setSuggestionsLoading] = useState(false)
 
   const fetchPosts = useCallback(async () => {
     try {
@@ -43,6 +45,41 @@ const Feed = () => {
   useEffect(() => {
     fetchPosts()
   }, [fetchPosts])
+
+  const fetchSuggestions = useCallback(async () => {
+    if (!currentUserId) {
+      setSuggestedUsers([])
+      return
+    }
+
+    try {
+      setSuggestionsLoading(true)
+      const res = await api.get('/users/suggestions')
+      setSuggestedUsers(res.data)
+    } catch {
+      setSuggestedUsers([])
+    } finally {
+      setSuggestionsLoading(false)
+    }
+  }, [currentUserId])
+
+  useEffect(() => {
+    fetchSuggestions()
+  }, [fetchSuggestions])
+
+  const handleFollowSuggestion = async (userId) => {
+    try {
+      await api.put(`/users/${userId}/follow`)
+      setSuggestedUsers((prev) => prev.map((u) => (
+        u._id === userId ? { ...u, isFollowing: true } : u
+      )))
+      if (feedMode === 'smart') {
+        fetchPosts()
+      }
+    } catch {
+      // ignore and keep current state
+    }
+  }
 
   const handleProfileClick = () => {
     if (!currentUserId) return
@@ -97,6 +134,48 @@ const Feed = () => {
         {/* Create post form — only if logged in */}
         {currentUserId && (
           <CreatePostForm onPostCreated={fetchPosts} />
+        )}
+
+        {currentUserId && (
+          <section className="suggestions-strip-card">
+            <div className="suggestions-strip-header">
+              <h3 className="suggestions-title">Suggested People</h3>
+              <span className="suggestions-subtitle">Discover classmates to follow</span>
+            </div>
+
+            {suggestionsLoading && <p className="suggestions-status">Loading suggestions...</p>}
+            {!suggestionsLoading && suggestedUsers.length === 0 && (
+              <p className="suggestions-status">No suggestions right now.</p>
+            )}
+
+            {!suggestionsLoading && suggestedUsers.length > 0 && (
+              <div className="suggestions-row" role="list">
+                {suggestedUsers.map((person) => (
+                  <div key={person._id} className="suggestion-tile" role="listitem">
+                    <div className="suggestion-info">
+                      <div className="suggestion-name">{person.name || 'Student'}</div>
+                      <div className="suggestion-username">@{person.username}</div>
+                    </div>
+                    <div className="suggestion-actions">
+                      <button
+                        className="suggestion-btn suggestion-btn-follow"
+                        onClick={() => handleFollowSuggestion(person._id)}
+                        disabled={person.isFollowing}
+                      >
+                        {person.isFollowing ? 'Following' : 'Follow'}
+                      </button>
+                      <button
+                        className="suggestion-btn suggestion-btn-view"
+                        onClick={() => navigate(`/profile/${person._id}`)}
+                      >
+                        View Profile
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </section>
         )}
 
         {/* Posts list */}
