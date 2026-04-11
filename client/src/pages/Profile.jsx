@@ -3,6 +3,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useAuth } from '../context/useAuth'
 import api from '../api/index'
 import FollowButton from '../components/FollowButton'
+import Avatar from '../components/Avatar'
 import PostCard from '../components/PostCard'
 import './Feed.css'
 import './Profile.css'
@@ -21,6 +22,8 @@ const Profile = () => {
   const [editing, setEditing] = useState(false)
   const [bio, setBio] = useState('')
   const [name, setName] = useState('')
+  const [avatarFile, setAvatarFile] = useState(null)
+  const [avatarPreview, setAvatarPreview] = useState('')
   const [saving, setSaving] = useState(false)
   const [followLoading, setFollowLoading] = useState(false)
 
@@ -39,7 +42,7 @@ const Profile = () => {
   const isLoggedIn = Boolean(token)
   const currentUserId = getUserIdFromToken(token)
   const isOwnProfile = currentUserId && profile?._id === currentUserId
-  const isFollowing = profile?.followers?.includes(currentUserId)
+  const isFollowing = profile?.followers?.some((id) => id?.toString() === currentUserId)
   const targetUserId = profile?._id || id
 
   const handleProfileClick = () => {
@@ -97,15 +100,56 @@ const Profile = () => {
   const handleEditStart = () => {
     setName(profile?.name || '')
     setBio(profile?.bio || '')
+    setAvatarFile(null)
+    setAvatarPreview(profile?.avatar || '')
     setEditing(true)
   }
 
   const handleEditCancel = () => {
     setName(profile?.name || '')
     setBio(profile?.bio || '')
+    setAvatarFile(null)
+    setAvatarPreview(profile?.avatar || '')
     setEditing(false)
     setError('')
   }
+
+  const handleAvatarChange = (event) => {
+    const file = event.target.files?.[0] || null
+    setAvatarFile(file)
+
+    if (!file) {
+      setAvatarPreview(profile?.avatar || '')
+      return
+    }
+
+    if (!file.type.startsWith('image/')) {
+      setError('Please choose an image file')
+      event.target.value = ''
+      setAvatarFile(null)
+      setAvatarPreview(profile?.avatar || '')
+      return
+    }
+
+    if (file.size > 2 * 1024 * 1024) {
+      setError('Avatar image must be 2MB or smaller')
+      event.target.value = ''
+      setAvatarFile(null)
+      setAvatarPreview(profile?.avatar || '')
+      return
+    }
+
+    setError('')
+    setAvatarPreview(URL.createObjectURL(file))
+  }
+
+  useEffect(() => {
+    return () => {
+      if (avatarPreview?.startsWith('blob:')) {
+        URL.revokeObjectURL(avatarPreview)
+      }
+    }
+  }, [avatarPreview])
 
   const handleSave = async () => {
     if (!name.trim()) {
@@ -117,8 +161,22 @@ const Profile = () => {
       setSaving(true)
       setError('')
       setMessage('')
-      const res = await api.put(`/users/${targetUserId}`, { name: name.trim(), bio })
-      setProfile(res.data)
+
+      const profileRes = await api.put(`/users/${targetUserId}`, { name: name.trim(), bio })
+      let nextProfile = profileRes.data
+
+      if (avatarFile) {
+        const formData = new FormData()
+        formData.append('avatar', avatarFile)
+
+        const avatarRes = await api.put(`/users/${targetUserId}/avatar`, formData)
+
+        nextProfile = avatarRes.data
+      }
+
+      setProfile(nextProfile)
+      setAvatarFile(null)
+      setAvatarPreview(nextProfile.avatar || '')
       setEditing(false)
       setMessage('Profile updated successfully')
     } catch (err) {
@@ -129,6 +187,31 @@ const Profile = () => {
   }
 
   const handleFollowToggle = async () => {
+    if (!profile || followLoading) return
+
+    const previousProfile = profile
+    const nextFollowing = !isFollowing
+
+    setProfile((prev) => {
+      if (!prev) return prev
+
+      const followers = prev.followers || []
+      const normalizedFollowers = followers.map((id) => id.toString())
+
+      if (nextFollowing) {
+        if (normalizedFollowers.includes(currentUserId)) return prev
+        return {
+          ...prev,
+          followers: [...followers, currentUserId]
+        }
+      }
+
+      return {
+        ...prev,
+        followers: followers.filter((id) => id.toString() !== currentUserId)
+      }
+    })
+
     try {
       setFollowLoading(true)
       setError('')
@@ -137,13 +220,18 @@ const Profile = () => {
       const successText = isFollowing ? 'Unfollowed successfully' : 'Followed successfully'
 
       await api.put(`/users/${targetUserId}/${endpoint}`)
-      await fetchProfile()
       setMessage(successText)
     } catch (err) {
+      setProfile(previousProfile)
       setError(err.response?.data?.error || 'Failed to update follow status')
     } finally {
       setFollowLoading(false)
     }
+  }
+
+  const handleMessageClick = () => {
+    if (!targetUserId) return
+    navigate(`/messages/${targetUserId}`)
   }
 
   if (loading) {
@@ -153,7 +241,7 @@ const Profile = () => {
           <div className="feed-nav-left">
             <span className="feed-logo">StudentNet</span>
             <Link to="/feed" className="nav-link">Feed</Link>
-            <Link to="/explore" className="nav-link">Explore</Link>
+            <Link to="/explore" className="nav-link">Search</Link>
           </div>
           <div className="feed-nav-right">
             <button onClick={handleProfileClick} disabled={!currentUserId} className="nav-btn">
@@ -176,8 +264,10 @@ const Profile = () => {
       <nav className="feed-nav">
         <div className="feed-nav-left">
           <span className="feed-logo">StudentNet</span>
+          <Link to="/create-post" className="nav-link">Create Post</Link>
           <Link to="/feed" className="nav-link">Feed</Link>
-          <Link to="/explore" className="nav-link">Explore</Link>
+          <Link to="/explore" className="nav-link">Search</Link>
+          <Link to="/messages" className="nav-link">Messages</Link>
         </div>
         <div className="feed-nav-right">
           <button onClick={handleProfileClick} disabled={!currentUserId} className="nav-btn">
@@ -198,6 +288,31 @@ const Profile = () => {
               <h2 className="profile-title">Profile</h2>
               {error && <p className="profile-error">{error}</p>}
               {message && <p className="profile-success">{message}</p>}
+
+              <div className="profile-avatar-block">
+                <Avatar
+                  src={editing ? avatarPreview : profile.avatar}
+                  name={profile.name || profile.username}
+                  size={88}
+                  className="profile-avatar"
+                />
+
+                {isOwnProfile && editing && (
+                  <div className="profile-avatar-controls">
+                    <label className="profile-avatar-label" htmlFor="profile-avatar-input">
+                      Change profile picture
+                    </label>
+                    <input
+                      id="profile-avatar-input"
+                      type="file"
+                      accept="image/*"
+                      onChange={handleAvatarChange}
+                      className="profile-avatar-input"
+                    />
+                    <p className="profile-avatar-hint">PNG, JPG, GIF or WEBP. Max size: 2MB.</p>
+                  </div>
+                )}
+              </div>
 
               <div className="profile-meta">
                 <div className="profile-meta-item"><strong>Username:</strong> {profile.username}</div>
@@ -255,12 +370,20 @@ const Profile = () => {
                       <Link to="/login" className="profile-link">Login</Link> to follow this user.
                     </p>
                   ) : (
-                    <FollowButton
-                      isFollowing={isFollowing}
-                      isLoggedIn={isLoggedIn}
-                      followLoading={followLoading}
-                      onToggle={handleFollowToggle}
-                    />
+                    <>
+                      <FollowButton
+                        isFollowing={isFollowing}
+                        isLoggedIn={isLoggedIn}
+                        followLoading={followLoading}
+                        onToggle={handleFollowToggle}
+                      />
+                      <button
+                        onClick={handleMessageClick}
+                        className="profile-btn profile-btn-message profile-btn-block"
+                      >
+                        Message
+                      </button>
+                    </>
                   )}
                   <button onClick={fetchProfile} className="profile-btn profile-btn-secondary profile-btn-block">
                     Refresh

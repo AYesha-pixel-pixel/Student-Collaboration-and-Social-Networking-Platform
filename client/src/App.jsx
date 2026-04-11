@@ -7,6 +7,10 @@ import Register from './pages/Register'
 import Feed from './pages/Feed'
 import Profile from './pages/Profile'
 import Explore from './pages/Explore'
+import CreatePostPage from './pages/CreatePost'
+import MessagesInbox from './pages/MessagesInbox'
+import Messages from './pages/Messages'
+import PostDetail from './pages/PostDetail'
 import NotFound from './pages/NotFound'
 import './index.css'
 
@@ -19,9 +23,14 @@ function App() {
           <Route path="/register" element={<Register />} />
           <Route path="/" element={<Navigate to="/feed" replace />} />
           <Route path="/feed" element={<ProtectedRoute><Feed /></ProtectedRoute>} />
+          <Route path="/create-post" element={<ProtectedRoute><CreatePostPage /></ProtectedRoute>} />
+          <Route path="/post/:id" element={<ProtectedRoute><PostDetail /></ProtectedRoute>} />
+          <Route path="/posts/:id" element={<ProtectedRoute><PostDetail /></ProtectedRoute>} />
           <Route path="/profile/:id" element={<Profile />} />
           <Route path="/u/:username" element={<Profile />} />
-          <Route path="/explore" element={<Explore />} />
+          <Route path="/messages" element={<ProtectedRoute><MessagesInbox /></ProtectedRoute>} />
+          <Route path="/messages/:userId" element={<ProtectedRoute><Messages /></ProtectedRoute>} />
+          <Route path="/explore" element={<ProtectedRoute><Explore /></ProtectedRoute>} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Router>

@@ -3,15 +3,48 @@ const router = express.Router()
 const mongoose = require('mongoose')
 const Post = require('../models/Post')
 const auth = require('../middleware/auth')
+const multer = require('multer')
+const cloudinary = require('../config/cloudinary')
+
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: 10 * 1024 * 1024
+  }
+})
+
+const uploadToCloudinary = (file) => {
+  const dataUri = `data:${file.mimetype};base64,${file.buffer.toString('base64')}`
+
+  return cloudinary.uploader.upload(dataUri, {
+    folder: 'studentnet/posts',
+    resource_type: 'image'
+  })
+}
+
+const postPopulateOptions = [
+  { path: 'userId', select: 'name username avatar' },
+  { path: 'comments.userId', select: 'name username avatar' }
+]
+
+const likePopulateOptions = [
+  { path: 'likes', select: 'name username avatar' }
+]
+
+const maybeUploadImage = (req, res, next) => {
+  if (req.is('multipart/form-data')) {
+    return upload.single('image')(req, res, next)
+  }
+
+  return next()
+}
 
 // GET /api/posts — get all posts, newest first
 router.get('/', async (req, res) => {
   try {
     const posts = await Post.find()
       .sort({ createdAt: -1 })
-      .populate('userId', 'name username')
-    // .populate means: instead of just storing the user's ID,
-    // go fetch their name and username from the Users collection too
+      .populate(postPopulateOptions)
     res.json(posts)
   } catch (err) {
     res.status(500).json({ error: err.message })
@@ -27,7 +60,7 @@ router.get('/feed', auth, async (req, res) => {
 
     const posts = await Post.find({ userId: { $in: followingIds } })
       .sort({ createdAt: -1 })
-      .populate('userId', 'name username')
+      .populate(postPopulateOptions)
 
     res.json(posts)
   } catch (err) {
@@ -45,7 +78,7 @@ router.get('/user/:userId', async (req, res) => {
 
     const posts = await Post.find({ userId })
       .sort({ createdAt: -1 })
-      .populate('userId', 'name username')
+      .populate(postPopulateOptions)
 
     res.json(posts)
   } catch (err) {
@@ -53,22 +86,65 @@ router.get('/user/:userId', async (req, res) => {
   }
 })
 
-// POST /api/posts — create a new post
-router.post('/', auth, async (req, res) => {
+// GET /api/posts/:id — get a single post with comments
+router.get('/:id', async (req, res) => {
   try {
-    const { content } = req.body
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ error: 'Invalid post id' })
+    }
+
+    const post = await Post.findById(req.params.id).populate(postPopulateOptions)
+    if (!post) return res.status(404).json({ error: 'Post not found' })
+
+    res.json(post)
+  } catch (err) {
+    res.status(500).json({ error: err.message })
+  }
+})
+
+// GET /api/posts/:id/likes — get users who liked a post
+router.get('/:id/likes', async (req, res) => {
+  try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ error: 'Invalid post id' })
+    }
+
+    const post = await Post.findById(req.params.id).populate(likePopulateOptions)
+    if (!post) return res.status(404).json({ error: 'Post not found' })
+
+    res.json(post.likes || [])
+  } catch (err) {
+    res.status(500).json({ error: err.message })
+  }
+})
+
+// POST /api/posts — create a new post
+router.post('/', auth, maybeUploadImage, async (req, res) => {
+  try {
+    const body = req.body || {}
+    const { content, graphic } = body
     if (!content?.trim())
       return res.status(400).json({ error: 'Content is required' })
 
+    let graphicUrl = null
+
+    if (req.file) {
+      const uploadResult = await uploadToCloudinary(req.file)
+      graphicUrl = uploadResult.secure_url
+    } else if (typeof graphic === 'string' && graphic.trim()) {
+      graphicUrl = graphic.trim()
+    }
+
     const post = new Post({
       userId: req.user.userId,
-      content: content.trim()
+      content: content.trim(),
+      graphic: graphicUrl
     })
 
     await post.save()
 
     // populate before sending back so PostCard gets the author name immediately
-    await post.populate('userId', 'name username')
+    await post.populate(postPopulateOptions)
     res.status(201).json(post)
   } catch (err) {
     res.status(500).json({ error: err.message })
@@ -92,9 +168,35 @@ router.put('/:id', auth, async (req, res) => {
 
     post.content = content.trim()
     await post.save()
-    await post.populate('userId', 'name username')
+    await post.populate(postPopulateOptions)
 
     res.json(post)
+  } catch (err) {
+    res.status(500).json({ error: err.message })
+  }
+})
+
+// POST /api/posts/:id/comments — add a comment to a post
+router.post('/:id/comments', auth, async (req, res) => {
+  try {
+    const post = await Post.findById(req.params.id)
+    if (!post) return res.status(404).json({ error: 'Post not found' })
+
+    const body = req.body || {}
+    const content = body.content?.trim()
+    if (!content) {
+      return res.status(400).json({ error: 'Comment content is required' })
+    }
+
+    post.comments.push({
+      userId: req.user.userId,
+      content
+    })
+
+    await post.save()
+    await post.populate(postPopulateOptions)
+
+    res.status(201).json(post)
   } catch (err) {
     res.status(500).json({ error: err.message })
   }
@@ -124,15 +226,20 @@ router.put('/:id/like', auth, async (req, res) => {
     if (!post) return res.status(404).json({ error: 'Post not found' })
 
     const userId = req.user.userId
-    const alreadyLiked = post.likes.includes(userId)
+    const alreadyLiked = post.likes.some(id => id.toString() === userId)
 
     if (alreadyLiked) {
       await post.updateOne({ $pull: { likes: userId } })
-      res.json({ message: 'Post unliked', liked: false, likes: post.likes.length - 1 })
     } else {
-      await post.updateOne({ $push: { likes: userId } })
-      res.json({ message: 'Post liked', liked: true, likes: post.likes.length + 1 })
+      await post.updateOne({ $addToSet: { likes: userId } })
     }
+
+    const updatedPost = await Post.findById(req.params.id).select('likes')
+    res.json({
+      message: alreadyLiked ? 'Post unliked' : 'Post liked',
+      liked: !alreadyLiked,
+      likes: updatedPost.likes.length
+    })
   } catch (err) {
     res.status(500).json({ error: err.message })
   }

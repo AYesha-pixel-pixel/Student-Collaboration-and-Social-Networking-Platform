@@ -10,8 +10,13 @@ export const getPostById = async (postId) => {
   return response.data
 }
 
-export const createPost = async (content) => {
-  const response = await api.post('/posts', { content })
+export const getPostLikes = async (postId) => {
+  const response = await api.get(`/posts/${postId}/likes`)
+  return response.data
+}
+
+export const createPost = async (postData) => {
+  const response = await api.post('/posts', postData)
   return response.data
 }
 

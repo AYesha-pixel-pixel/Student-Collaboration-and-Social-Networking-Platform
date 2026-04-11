@@ -2,6 +2,7 @@ import { useMemo, useState, useEffect, useCallback } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/useAuth'
 import CreatePostForm from '../components/CreatePostForm'
+import Avatar from '../components/Avatar'
 import PostCard from '../components/PostCard'
 import api from '../api/index'
 import './Feed.css'
@@ -55,7 +56,7 @@ const Feed = () => {
     try {
       setSuggestionsLoading(true)
       const res = await api.get('/users/suggestions')
-      setSuggestedUsers(res.data)
+      setSuggestedUsers(res.data.filter((person) => person._id !== currentUserId && !person.isFollowing))
     } catch {
       setSuggestedUsers([])
     } finally {
@@ -68,16 +69,19 @@ const Feed = () => {
   }, [fetchSuggestions])
 
   const handleFollowSuggestion = async (userId) => {
+    const previousUsers = suggestedUsers
+
+    setSuggestedUsers((prev) => prev.map((u) => (
+      u._id === userId ? { ...u, isFollowing: true } : u
+    )))
+
     try {
       await api.put(`/users/${userId}/follow`)
-      setSuggestedUsers((prev) => prev.map((u) => (
-        u._id === userId ? { ...u, isFollowing: true } : u
-      )))
       if (feedMode === 'smart') {
         fetchPosts()
       }
     } catch {
-      // ignore and keep current state
+      setSuggestedUsers(previousUsers)
     }
   }
 
@@ -98,7 +102,9 @@ const Feed = () => {
       <nav className="feed-nav">
         <div className="feed-nav-left">
           <span className="feed-logo">StudentNet</span>
-          <Link to="/explore" className="nav-link">Explore</Link>
+          <Link to="/create-post" className="nav-link">Create Post</Link>
+          <Link to="/explore" className="nav-link">Search</Link>
+          <Link to="/messages" className="nav-link">Messages</Link>
         </div>
         <div className="feed-nav-right">
           <button onClick={handleProfileClick} disabled={!currentUserId} className="nav-btn">
@@ -153,6 +159,12 @@ const Feed = () => {
                 {suggestedUsers.map((person) => (
                   <div key={person._id} className="suggestion-tile" role="listitem">
                     <div className="suggestion-info">
+                      <Avatar
+                        src={person.avatar}
+                        name={person.name || person.username}
+                        size={40}
+                        className="suggestion-avatar"
+                      />
                       <div className="suggestion-name">{person.name || 'Student'}</div>
                       <div className="suggestion-username">@{person.username}</div>
                     </div>
