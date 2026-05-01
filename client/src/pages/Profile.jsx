@@ -243,6 +243,8 @@ const Profile = () => {
             <Link to="/feed" className="nav-link">Feed</Link>
             <Link to="/societies" className="nav-link">Societies</Link>
             <Link to="/explore" className="nav-link">Search</Link>
+            <Link to="/about" className="nav-link">About</Link>
+            <Link to="/contact" className="nav-link">Contact</Link>
           </div>
           <div className="feed-nav-right">
             <button onClick={handleProfileClick} disabled={!currentUserId} className="nav-btn">
@@ -261,7 +263,14 @@ const Profile = () => {
   }
 
   return (
-    <div className="feed-page">
+    <>
+      <link rel="preconnect" href="https://fonts.googleapis.com" />
+      <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Nunito:wght@400;600;700;800&display=swap"
+        rel="stylesheet"
+      />
+
+      <div className="feed-page">
       <nav className="feed-nav">
         <div className="feed-nav-left">
           <span className="feed-logo">StudentNet</span>
@@ -271,6 +280,8 @@ const Profile = () => {
           <Link to="/explore" className="nav-link">Search</Link>
           <Link to="/messages" className="nav-link">Messages</Link>
           <Link to="/settings" className="nav-link">Settings</Link>
+          <Link to="/about" className="nav-link">About</Link>
+          <Link to="/contact" className="nav-link">Contact</Link>
         </div>
         <div className="feed-nav-right">
           <button onClick={handleProfileClick} disabled={!currentUserId} className="nav-btn">
@@ -282,144 +293,171 @@ const Profile = () => {
         </div>
       </nav>
 
-      <div className="feed-container">
+      <div className="feed-container profile-container">
         {!profile ? (
           <div className="feed-status feed-error">{error || 'User not found'}</div>
         ) : (
-          <>
-            <div className="profile-card">
-              <h2 className="profile-title">Profile</h2>
-              {error && <p className="profile-error">{error}</p>}
-              {message && <p className="profile-success">{message}</p>}
-
-              <div className="profile-avatar-block">
-                <Avatar
-                  src={editing ? avatarPreview : profile.avatar}
-                  name={profile.name || profile.username}
-                  size={88}
-                  className="profile-avatar"
-                />
-
-                {isOwnProfile && editing && (
-                  <div className="profile-avatar-controls">
-                    <label className="profile-avatar-label" htmlFor="profile-avatar-input">
-                      Change profile picture
-                    </label>
-                    <input
-                      id="profile-avatar-input"
-                      type="file"
-                      accept="image/*"
-                      onChange={handleAvatarChange}
-                      className="profile-avatar-input"
-                    />
-                    <p className="profile-avatar-hint">PNG, JPG, GIF or WEBP. Max size: 2MB.</p>
-                  </div>
-                )}
+          <div className="profile-shell">
+            <section className="profile-hero">
+              <div className="profile-hero-main">
+                <span className="profile-badge">Profile Space</span>
+                <h1 className="profile-heading">{profile.name || profile.username}</h1>
+                <p className="profile-sub">
+                  {profile.bio || 'Set your bio to tell everyone what you are working on this semester.'}
+                </p>
               </div>
-
-              <div className="profile-meta">
-                <div className="profile-meta-item"><strong>Username:</strong> {profile.username}</div>
-                <div className="profile-meta-item"><strong>Followers:</strong> {profile.followers?.length || 0}</div>
-                <div className="profile-meta-item"><strong>Following:</strong> {profile.following?.length || 0}</div>
-              </div>
-
-              <div className="profile-field">
-                <label>Name</label>
-                {editing ? (
-                  <input
-                    type="text"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    placeholder="Your name"
-                    className="profile-input"
-                  />
-                ) : (
-                  <p>{profile.name || '-'}</p>
-                )}
-              </div>
-
-              <div className="profile-field">
-                <label>Bio</label>
-                {editing ? (
-                  <textarea
-                    value={bio}
-                    onChange={(e) => setBio(e.target.value)}
-                    rows={4}
-                    placeholder="Write your bio"
-                    className="profile-textarea"
-                  />
-                ) : (
-                  <p>{profile.bio || 'No bio yet.'}</p>
-                )}
-              </div>
-
-              {editing ? (
-                <div className="profile-actions-row">
-                  <button onClick={handleSave} disabled={saving} className="profile-btn profile-btn-primary">
-                    {saving ? 'Saving...' : 'Save'}
-                  </button>
-                  <button onClick={handleEditCancel} disabled={saving} className="profile-btn profile-btn-secondary">
-                    Cancel
-                  </button>
+              <div className="profile-stats">
+                <div className="profile-stat-card">
+                  <span>Followers</span>
+                  <strong>{profile.followers?.length || 0}</strong>
                 </div>
-              ) : (
-                <>
-                  {isOwnProfile ? (
-                    <button onClick={handleEditStart} className="profile-btn profile-btn-primary profile-btn-block">
-                      Edit Profile
-                    </button>
-                  ) : !isLoggedIn ? (
-                    <p className="profile-login-hint">
-                      <Link to="/login" className="profile-link">Login</Link> to follow this user.
-                    </p>
-                  ) : (
-                    <>
-                      <FollowButton
-                        isFollowing={isFollowing}
-                        isLoggedIn={isLoggedIn}
-                        followLoading={followLoading}
-                        onToggle={handleFollowToggle}
+                <div className="profile-stat-card">
+                  <span>Following</span>
+                  <strong>{profile.following?.length || 0}</strong>
+                </div>
+                <div className="profile-stat-card">
+                  <span>Posts</span>
+                  <strong>{userPosts.length}</strong>
+                </div>
+              </div>
+            </section>
+
+            <div className="profile-grid">
+              <div className="profile-card">
+                <h2 className="profile-title">Profile</h2>
+                {error && <p className="profile-error">{error}</p>}
+                {message && <p className="profile-success">{message}</p>}
+
+                <div className="profile-avatar-block">
+                  <Avatar
+                    src={editing ? avatarPreview : profile.avatar}
+                    name={profile.name || profile.username}
+                    size={88}
+                    className="profile-avatar"
+                  />
+
+                  {isOwnProfile && editing && (
+                    <div className="profile-avatar-controls">
+                      <label className="profile-avatar-label" htmlFor="profile-avatar-input">
+                        Change profile picture
+                      </label>
+                      <input
+                        id="profile-avatar-input"
+                        type="file"
+                        accept="image/*"
+                        onChange={handleAvatarChange}
+                        className="profile-avatar-input"
                       />
-                      <button
-                        onClick={handleMessageClick}
-                        className="profile-btn profile-btn-message profile-btn-block"
-                      >
-                        Message
-                      </button>
-                    </>
+                      <p className="profile-avatar-hint">PNG, JPG, GIF or WEBP. Max size: 2MB.</p>
+                    </div>
                   )}
-                  <button onClick={fetchProfile} className="profile-btn profile-btn-secondary profile-btn-block">
-                    Refresh
-                  </button>
-                </>
-              )}
+                </div>
+
+                <div className="profile-meta">
+                  <div className="profile-meta-item"><strong>Username:</strong> {profile.username}</div>
+                  <div className="profile-meta-item"><strong>Followers:</strong> {profile.followers?.length || 0}</div>
+                  <div className="profile-meta-item"><strong>Following:</strong> {profile.following?.length || 0}</div>
+                </div>
+
+                <div className="profile-field">
+                  <label>Name</label>
+                  {editing ? (
+                    <input
+                      type="text"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      placeholder="Your name"
+                      className="profile-input"
+                    />
+                  ) : (
+                    <p>{profile.name || '-'}</p>
+                  )}
+                </div>
+
+                <div className="profile-field">
+                  <label>Bio</label>
+                  {editing ? (
+                    <textarea
+                      value={bio}
+                      onChange={(e) => setBio(e.target.value)}
+                      rows={4}
+                      placeholder="Write your bio"
+                      className="profile-textarea"
+                    />
+                  ) : (
+                    <p>{profile.bio || 'No bio yet.'}</p>
+                  )}
+                </div>
+
+                {editing ? (
+                  <div className="profile-actions-row">
+                    <button onClick={handleSave} disabled={saving} className="profile-btn profile-btn-primary">
+                      {saving ? 'Saving...' : 'Save'}
+                    </button>
+                    <button onClick={handleEditCancel} disabled={saving} className="profile-btn profile-btn-secondary">
+                      Cancel
+                    </button>
+                  </div>
+                ) : (
+                  <>
+                    {isOwnProfile ? (
+                      <button onClick={handleEditStart} className="profile-btn profile-btn-primary profile-btn-block">
+                        Edit Profile
+                      </button>
+                    ) : !isLoggedIn ? (
+                      <p className="profile-login-hint">
+                        <Link to="/login" className="profile-link">Login</Link> to follow this user.
+                      </p>
+                    ) : (
+                      <>
+                        <FollowButton
+                          isFollowing={isFollowing}
+                          isLoggedIn={isLoggedIn}
+                          followLoading={followLoading}
+                          onToggle={handleFollowToggle}
+                        />
+                        <button
+                          onClick={handleMessageClick}
+                          className="profile-btn profile-btn-message profile-btn-block"
+                        >
+                          Message
+                        </button>
+                      </>
+                    )}
+                    <button onClick={fetchProfile} className="profile-btn profile-btn-secondary profile-btn-block">
+                      Refresh
+                    </button>
+                  </>
+                )}
+              </div>
+
+              <div className="profile-posts-panel">
+                <h3 className="profile-posts-title">
+                  {isOwnProfile ? 'Your Posts' : `${profile.name || profile.username}'s Posts`}
+                </h3>
+
+                {postsLoading && <div className="feed-status">Loading posts...</div>}
+                {postsError && <div className="feed-status feed-error">{postsError}</div>}
+                {!postsLoading && !postsError && userPosts.length === 0 && (
+                  <div className="feed-status">No posts yet.</div>
+                )}
+
+                {userPosts.map((post) => (
+                  <PostCard
+                    key={post._id}
+                    post={post}
+                    currentUserId={currentUserId}
+                    onDelete={(deletedId) => setUserPosts((prev) => prev.filter((p) => p._id !== deletedId))}
+                    onUpdate={(updated) => setUserPosts((prev) => prev.map((p) => (p._id === updated._id ? updated : p)))}
+                  />
+                ))}
+              </div>
             </div>
-
-            <div className="profile-posts-section">
-              <h3 className="profile-posts-title">
-                {isOwnProfile ? 'Your Posts' : `${profile.name || profile.username}'s Posts`}
-              </h3>
-
-              {postsLoading && <div className="feed-status">Loading posts...</div>}
-              {postsError && <div className="feed-status feed-error">{postsError}</div>}
-              {!postsLoading && !postsError && userPosts.length === 0 && (
-                <div className="feed-status">No posts yet.</div>
-              )}
-
-              {userPosts.map((post) => (
-                <PostCard
-                  key={post._id}
-                  post={post}
-                  currentUserId={currentUserId}
-                  onDelete={(deletedId) => setUserPosts((prev) => prev.filter((p) => p._id !== deletedId))}
-                  onUpdate={(updated) => setUserPosts((prev) => prev.map((p) => (p._id === updated._id ? updated : p)))}
-                />
-              ))}
-            </div>
-          </>
+          </div>
         )}
       </div>
-    </div>
+      </div>
+    </>
   )
 }
 

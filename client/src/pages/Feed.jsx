@@ -189,6 +189,8 @@ const Feed = () => {
             <Link to="/explore"     style={s.navA}>Explore</Link>
             <Link to="/messages"    style={s.navA}>Messages</Link>
             <Link to="/settings"    style={s.navA}>Settings</Link>
+            <Link to="/about"       style={s.navA}>About</Link>
+            <Link to="/contact"     style={s.navA}>Contact</Link>
           </div>
           <div style={s.navRight}>
             <button style={s.btnOutline} onClick={() => navigate(`/profile/${currentUserId}`)}>

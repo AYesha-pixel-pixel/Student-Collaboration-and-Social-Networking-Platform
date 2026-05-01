@@ -200,6 +200,8 @@ const SocietiesHome = () => {
             <Link to="/explore"     style={s.navA} className="soc-nava">Explore</Link>
             <Link to="/messages"    style={s.navA} className="soc-nava">Messages</Link>
             <Link to="/settings"    style={s.navA} className="soc-nava">Settings</Link>
+            <Link to="/about"       style={s.navA} className="soc-nava">About</Link>
+            <Link to="/contact"     style={s.navA} className="soc-nava">Contact</Link>
           </div>
           <div style={s.navRight}>
             <Link to="/societies/new" style={s.btnOutline}>+ New Society</Link>

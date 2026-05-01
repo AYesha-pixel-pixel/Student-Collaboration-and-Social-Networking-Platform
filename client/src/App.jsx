@@ -8,6 +8,8 @@ import Feed from './pages/Feed'
 import Profile from './pages/Profile'
 import Explore from './pages/Explore'
 import CreatePostPage from './pages/CreatePost'
+import About from './pages/About'
+import Contact from './pages/Contact'
 import MessagesInbox from './pages/MessagesInbox'
 import Messages from './pages/Messages'
 import PostDetail from './pages/PostDetail'
@@ -33,6 +35,8 @@ function App() {
           <Route path="/register" element={<Register />} />
           <Route path="/feed" element={<ProtectedRoute><Feed /></ProtectedRoute>} />
           <Route path="/create-post" element={<ProtectedRoute><CreatePostPage /></ProtectedRoute>} />
+          <Route path="/about" element={<About />} />
+          <Route path="/contact" element={<Contact />} />
           <Route path="/post/:id" element={<ProtectedRoute><PostDetail /></ProtectedRoute>} />
           <Route path="/posts/:id" element={<ProtectedRoute><PostDetail /></ProtectedRoute>} />
           <Route path="/profile/:id" element={<Profile />} />

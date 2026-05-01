@@ -364,6 +364,8 @@ const SocietyManage = () => {
             <Link to="/explore"   style={s.navA} className="sm-navA">Explore</Link>
             <Link to="/messages"  style={s.navA} className="sm-navA">Messages</Link>
             <Link to="/settings"  style={s.navA} className="sm-navA">Settings</Link>
+            <Link to="/about"     style={s.navA} className="sm-navA">About</Link>
+            <Link to="/contact"   style={s.navA} className="sm-navA">Contact</Link>
           </div>
           <div style={s.navRight}>
             {society && (

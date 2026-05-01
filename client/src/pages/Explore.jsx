@@ -59,6 +59,8 @@ const Explore = () => {
 					<Link to="/societies" className="nav-link">Societies</Link>
 					<Link to="/messages" className="nav-link">Messages</Link>
 					<Link to="/settings" className="nav-link">Settings</Link>
+					<Link to="/about" className="nav-link">About</Link>
+					<Link to="/contact" className="nav-link">Contact</Link>
 				</div>
 				<div className="feed-nav-right">
 					<button onClick={() => navigate(`/profile/${currentUserId}`)} disabled={!currentUserId} className="nav-btn">

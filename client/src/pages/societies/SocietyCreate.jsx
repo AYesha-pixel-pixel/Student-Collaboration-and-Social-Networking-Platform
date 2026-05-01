@@ -195,6 +195,8 @@ const SocietyCreate = () => {
             <Link to="/explore"   style={s.navA} className="sc-navA">Explore</Link>
             <Link to="/messages"  style={s.navA} className="sc-navA">Messages</Link>
             <Link to="/settings"  style={s.navA} className="sc-navA">Settings</Link>
+            <Link to="/about"     style={s.navA} className="sc-navA">About</Link>
+            <Link to="/contact"   style={s.navA} className="sc-navA">Contact</Link>
           </div>
           <div style={s.navRight}>
             <Link to="/societies" style={s.btnOutline}>← Back</Link>

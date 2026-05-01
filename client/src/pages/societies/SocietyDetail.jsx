@@ -399,6 +399,8 @@ const SocietyDetail = () => {
             <Link to="/explore"    style={s.navA} className="sd-navA">Explore</Link>
             <Link to="/messages"   style={s.navA} className="sd-navA">Messages</Link>
             <Link to="/settings"   style={s.navA} className="sd-navA">Settings</Link>
+            <Link to="/about"      style={s.navA} className="sd-navA">About</Link>
+            <Link to="/contact"    style={s.navA} className="sd-navA">Contact</Link>
           </div>
           <div style={s.navRight}>
             <Link to="/societies" style={s.btnOutline}>← Societies</Link>

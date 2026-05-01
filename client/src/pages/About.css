@@ -1,0 +1,227 @@
+.about-page {
+  min-height: 100vh;
+  position: relative;
+  overflow: hidden;
+  background: #eef3e2;
+  background-image: linear-gradient(#c8d8a0 1px, transparent 1px),
+    linear-gradient(90deg, #c8d8a0 1px, transparent 1px);
+  background-size: 24px 24px;
+  font-family: 'Nunito', sans-serif;
+}
+
+.about-background {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 16% 16%, rgba(244, 132, 95, 0.16), transparent 38%),
+    radial-gradient(circle at 82% 20%, rgba(91, 154, 245, 0.16), transparent 40%),
+    radial-gradient(circle at 70% 82%, rgba(73, 196, 160, 0.16), transparent 42%);
+  pointer-events: none;
+  opacity: 0.85;
+}
+
+.about-nav {
+  height: 60px;
+  background: #d4e6a5;
+  border-bottom: 2.5px solid #b5cc7a;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 36px;
+  position: sticky;
+  top: 0;
+  z-index: 5;
+}
+
+.about-logo {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-weight: 900;
+  font-size: 1.35rem;
+  color: #1a4a1a;
+  text-decoration: none;
+}
+
+.about-nav-links {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.about-nav-link {
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 0.92rem;
+  color: #1a4a1a;
+  padding: 6px 14px;
+}
+
+.about-nav-button {
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 0.88rem;
+  color: #fff;
+  padding: 8px 20px;
+  background: #1a4a1a;
+  border-radius: 999px;
+}
+
+.about-nav-outline {
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 0.88rem;
+  color: #1a4a1a;
+  padding: 7px 18px;
+  border: 2px solid #1a4a1a;
+  border-radius: 999px;
+}
+
+.about-floating {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.about-key {
+  position: absolute;
+  width: 62px;
+  height: 62px;
+  border-radius: 16px;
+  border: 3px solid #111;
+  box-shadow: 3px 3px 0 #111;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Playfair Display', Georgia, serif;
+  font-weight: 900;
+  font-size: 1.8rem;
+  color: #111;
+  animation: floatKey 3s ease-in-out infinite;
+  opacity: 0.95;
+}
+
+.about-shell {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+  gap: 2rem;
+  min-height: calc(100vh - 60px);
+  align-items: center;
+  padding: 3.2rem 3.5rem 3.8rem;
+  box-sizing: border-box;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.about-card {
+  background: #f9faf4;
+  border: 2.5px solid #1a4a1a;
+  border-top: 7px solid #f6c94e;
+  border-radius: 24px;
+  padding: 1.6rem 1.8rem;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.12);
+  display: grid;
+  gap: 0.8rem;
+  align-content: start;
+  min-width: 0;
+}
+
+.about-card-alt {
+  border-top-color: #43a047;
+  background: linear-gradient(145deg, #f0f7e8, #e8f5d0);
+}
+
+.about-badge {
+  display: inline-flex;
+  width: fit-content;
+  padding: 0.45rem 0.8rem;
+  border-radius: 999px;
+  background: rgba(67, 160, 71, 0.18);
+  color: #1a4a1a;
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.about-card h1 {
+  margin: 0.6rem 0 0.8rem;
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: clamp(1.8rem, 3.2vw, 2.6rem);
+  color: #1a4a1a;
+  line-height: 1.15;
+  word-break: break-word;
+}
+
+.about-card h2 {
+  margin: 0 0 0.6rem;
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 1.4rem;
+  color: #1a4a1a;
+  line-height: 1.2;
+  word-break: break-word;
+}
+
+.about-card p {
+  color: #5a7a3a;
+  line-height: 1.65;
+  font-weight: 600;
+  margin: 0 0 0.8rem;
+  word-break: break-word;
+}
+
+.about-card ul {
+  margin: 0;
+  padding-left: 1.2rem;
+  color: #1a4a1a;
+  font-weight: 700;
+  line-height: 1.6;
+  word-break: break-word;
+}
+
+.about-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+  margin-top: 0.8rem;
+}
+
+.about-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.8rem 1.4rem;
+  border-radius: 999px;
+  text-decoration: none;
+  font-weight: 800;
+}
+
+.about-btn-primary {
+  background: #1a4a1a;
+  color: #fff;
+}
+
+.about-btn-outline {
+  border: 2px solid #1a4a1a;
+  color: #1a4a1a;
+}
+
+@keyframes floatKey {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-7px);
+  }
+}
+
+@media (max-width: 960px) {
+  .about-shell {
+    grid-template-columns: 1fr;
+    padding: 2rem 1.5rem 2.8rem;
+  }
+
+  .about-floating {
+    display: none;
+  }
+}
