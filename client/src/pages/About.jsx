@@ -55,7 +55,7 @@ const About = () => {
             <span className="about-badge badge rounded-pill text-uppercase">About</span>
             <h1>Built for campus collaboration</h1>
             <p>
-              StudentNet is a shared space for posts, profiles, societies, and real-time messages.
+              UNIVERSE is a shared space for posts, profiles, societies, and real-time messages.
               It keeps classwork, group discussions, and announcements in one vibrant feed.
             </p>
             <p>
