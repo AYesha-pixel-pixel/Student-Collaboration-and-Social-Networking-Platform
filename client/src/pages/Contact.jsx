@@ -37,8 +37,9 @@ const Contact = () => {
           { to: '/settings', label: 'Settings' },
           { to: '/about', label: 'About' },
         ] : [
-          { to: '/login', label: 'Log In' },
-          { to: '/register', label: 'Sign Up' },
+           { to: '/', label: 'Home', end: true },
+           { to: '/contact', label: 'Contact' },
+            { to: '/about', label: 'About' },
         ]} />
 
         <div className="contact-floating" aria-hidden="true">
