@@ -38,8 +38,9 @@ const About = () => {
             { to: '/settings', label: 'Settings' },
             { to: '/contact', label: 'Contact' },
           ] : [
-            { to: '/login', label: 'Log In' },
-            { to: '/register', label: 'Sign Up' },
+             { to: '/', label: 'Home', end: true },
+            { to: '/contact', label: 'Contact' },
+            { to: '/about', label: 'About' },
           ]}
         />
 
