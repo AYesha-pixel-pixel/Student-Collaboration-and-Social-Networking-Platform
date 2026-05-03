@@ -12,7 +12,7 @@ const Navbar = ({
 	containerClassName = '',
 }) => {
 	const [isMenuOpen, setIsMenuOpen] = useState(false)
-	const { user, logout } = useAuth()
+	const { user, logout, unreadMessageCount } = useAuth()
 	const navigate = useNavigate()
 	const isLoggedIn = Boolean(user?.token || localStorage.getItem('token'))
 	const currentUserId = (() => {
@@ -63,6 +63,7 @@ const Navbar = ({
 
 	const toggleMenu = () => setIsMenuOpen(!isMenuOpen)
 	const closeMenu = () => setIsMenuOpen(false)
+	const displayUnreadCount = unreadMessageCount > 99 ? '99+' : String(unreadMessageCount)
 
 	return (
 		<>
@@ -92,7 +93,14 @@ const Navbar = ({
 								className={({ isActive }) => `app-navbar__link btn btn-link text-decoration-none${isActive ? ' active' : ''}`}
 								onClick={closeMenu}
 							>
-								{link.label}
+								<span className="app-navbar__link-label">
+									{link.label}
+									{link.to === '/messages' && unreadMessageCount > 0 && (
+										<span className="app-navbar__badge" aria-label={`${unreadMessageCount} unread messages`}>
+											{displayUnreadCount}
+										</span>
+									)}
+								</span>
 							</NavLink>
 						))}
 					</div>

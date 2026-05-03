@@ -17,6 +17,33 @@ const conversationPopulateOptions = [
 const ensureParticipant = (conversation, userId) =>
   conversation.participants.some((participantId) => participantId.toString() === userId)
 
+const getUnreadCountForConversation = async (conversationId, userId) => (
+  Message.countDocuments({
+    conversationId,
+    senderId: { $ne: userId },
+    readBy: { $ne: userId }
+  })
+)
+
+const attachUnreadCounts = async (conversations, userId) => {
+  const counts = await Promise.all(
+    conversations.map(async (conversation) => ({
+      conversationId: conversation._id.toString(),
+      unreadCount: await getUnreadCountForConversation(conversation._id, userId)
+    }))
+  )
+
+  const countMap = new Map(counts.map(({ conversationId, unreadCount }) => [conversationId, unreadCount]))
+
+  return conversations.map((conversation) => {
+    const data = conversation.toObject ? conversation.toObject() : conversation
+    return {
+      ...data,
+      unreadCount: countMap.get(conversation._id.toString()) || 0
+    }
+  })
+}
+
 const getDirectKey = (participantIds) => participantIds
   .map((id) => String(id))
   .sort()
@@ -54,7 +81,8 @@ router.get('/', auth, async (req, res) => {
       .sort({ updatedAt: -1 })
       .populate(conversationPopulateOptions)
 
-    res.json(dedupeConversations(conversations))
+    const dedupedConversations = dedupeConversations(conversations)
+    res.json(await attachUnreadCounts(dedupedConversations, req.user.userId))
   } catch (err) {
     res.status(500).json({ error: 'Server error' })
   }
@@ -75,7 +103,10 @@ router.get('/:id', auth, async (req, res) => {
       return res.status(403).json({ error: 'Not authorized to view this conversation' })
     }
 
-    res.json(conversation)
+    res.json({
+      ...(conversation.toObject ? conversation.toObject() : conversation),
+      unreadCount: await getUnreadCountForConversation(conversation._id, req.user.userId)
+    })
   } catch (err) {
     res.status(500).json({ error: 'Server error' })
   }
@@ -107,7 +138,10 @@ router.post('/', auth, async (req, res) => {
         .populate(conversationPopulateOptions)
 
       if (existingConversation) {
-        return res.json(existingConversation)
+        return res.json({
+          ...(existingConversation.toObject ? existingConversation.toObject() : existingConversation),
+          unreadCount: 0
+        })
       }
     }
 
@@ -124,7 +158,10 @@ router.post('/', auth, async (req, res) => {
     })
 
     await conversation.populate(conversationPopulateOptions)
-    res.status(201).json(conversation)
+    res.status(201).json({
+      ...(conversation.toObject ? conversation.toObject() : conversation),
+      unreadCount: 0
+    })
   } catch (err) {
     res.status(500).json({ error: 'Server error' })
   }

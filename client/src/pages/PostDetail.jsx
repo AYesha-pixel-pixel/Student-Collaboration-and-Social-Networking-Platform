@@ -138,7 +138,12 @@ const PostDetail = () => {
   }
 
   return (
-    <div className="feed-page d-flex flex-column min-vh-100">
+    <>
+      <link rel="preconnect" href="https://fonts.googleapis.com" />
+      <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+      <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
+
+      <div className="feed-page d-flex flex-column min-vh-100">
       <Navbar links={[
         { to: '/feed', label: 'Feed' },
         { to: '/create-post', label: 'Create Post' },
@@ -254,6 +259,7 @@ const PostDetail = () => {
         )}
       </div>
     </div>
+    </>
   )
 }
 

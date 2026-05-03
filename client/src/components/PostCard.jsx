@@ -175,6 +175,7 @@ const PostCard = ({ post, currentUserId, onDelete, onUpdate }) => {
           rows={3}
             className="post-edit-textarea form-control"
           onClick={stopCardNavigation}
+          onKeyDown={stopCardNavigation}
         />
       ) : (
         <div className="post-body-link card-body px-0 pt-0 pb-0">
@@ -197,10 +198,10 @@ const PostCard = ({ post, currentUserId, onDelete, onUpdate }) => {
       <div className="post-footer card-footer bg-transparent border-0 px-0 pb-0 d-grid gap-3">
 
         {/* Like button */}
-        <div className="post-social-bar d-flex flex-wrap align-items-center gap-2" onClick={stopCardNavigation}>
+        <div className="post-social-bar d-flex flex-wrap align-items-center gap-2" onClick={stopCardNavigation} onKeyDown={stopCardNavigation}>
           <button
             type="button"
-            onClick={handleLike}
+            onClick={(event) => { event.stopPropagation(); handleLike() }}
             className={`like-btn btn btn-sm rounded-pill ${isLiked ? 'btn-success' : 'btn-outline-success'}`}
           >
             {isLiked ? '♥' : '♡'} {likesCount}
@@ -217,14 +218,15 @@ const PostCard = ({ post, currentUserId, onDelete, onUpdate }) => {
 
         {/* Edit / Delete — only on your own posts */}
         {isMyPost && (
-          <div className="post-actions d-flex flex-wrap gap-2 justify-content-end" onClick={stopCardNavigation}>
+          <div className="post-actions d-flex flex-wrap gap-2 justify-content-end" onClick={stopCardNavigation} onKeyDown={stopCardNavigation}>
             {editing ? (
               <>
-                <button onClick={handleEdit} disabled={loading} className="btn-save btn btn-primary btn-sm rounded-pill px-3">
+                <button type="button" onClick={(event) => { event.stopPropagation(); handleEdit() }} disabled={loading} className="btn-save btn btn-primary btn-sm rounded-pill px-3">
                   {loading ? 'Saving...' : 'Save'}
                 </button>
                 <button
-                  onClick={() => { setEditing(false); setEditContent(post.content) }}
+                  type="button"
+                  onClick={(event) => { event.stopPropagation(); setEditing(false); setEditContent(post.content) }}
                   disabled={loading}
                   className="btn-cancel btn btn-outline-secondary btn-sm rounded-pill px-3"
                 >
@@ -233,10 +235,10 @@ const PostCard = ({ post, currentUserId, onDelete, onUpdate }) => {
               </>
             ) : (
               <>
-                <button onClick={() => setEditing(true)} className="btn-edit btn btn-outline-secondary btn-sm rounded-pill px-3">
+                <button type="button" onClick={(event) => { event.stopPropagation(); setEditing(true) }} className="btn-edit btn btn-outline-secondary btn-sm rounded-pill px-3">
                   Edit
                 </button>
-                <button onClick={handleDelete} disabled={loading} className="btn-delete btn btn-outline-danger btn-sm rounded-pill px-3">
+                <button type="button" onClick={(event) => { event.stopPropagation(); handleDelete() }} disabled={loading} className="btn-delete btn btn-outline-danger btn-sm rounded-pill px-3">
                   {loading ? 'Deleting...' : 'Delete'}
                 </button>
               </>

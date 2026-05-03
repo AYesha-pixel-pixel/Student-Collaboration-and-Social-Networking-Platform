@@ -1,4 +1,4 @@
-import { createContext, useEffect, useRef, useState } from 'react'
+import { createContext, useCallback, useEffect, useRef, useState } from 'react'
 import createSocket from '../socket'
 import api from '../api'
 
@@ -7,6 +7,7 @@ const AuthContext = createContext()
 export const AuthProvider = ({ children }) => {
   const socketRef = useRef(null)
   const [socket, setSocket] = useState(null)
+  const [unreadMessageCount, setUnreadMessageCount] = useState(0)
   const [user, setUser] = useState(() => {
     const token = localStorage.getItem('token')
     return token ? { token } : null
@@ -29,10 +30,28 @@ export const AuthProvider = ({ children }) => {
     }
   }
 
+  const refreshUnreadMessageCount = useCallback(async () => {
+    const token = user?.token
+    if (!token) {
+      setUnreadMessageCount(0)
+      return 0
+    }
+
+    try {
+      const res = await api.get('/messages/unread-count')
+      const count = Number(res.data?.count || 0)
+      setUnreadMessageCount(count)
+      return count
+    } catch {
+      return 0
+    }
+  }, [user?.token])
+
   useEffect(() => {
     const token = user?.token
 
     if (!token) {
+      setUnreadMessageCount(0)
       return undefined
     }
 
@@ -78,6 +97,7 @@ export const AuthProvider = ({ children }) => {
         if (!active) return
 
         const count = Number(res.data?.count || 0)
+        setUnreadMessageCount(count)
         if (count > 0) {
           sessionStorage.setItem(alertKey, 'shown')
           window.alert(`You have ${count} unread message${count === 1 ? '' : 's'}.`)
@@ -94,6 +114,29 @@ export const AuthProvider = ({ children }) => {
     }
   }, [user?.token])
 
+  useEffect(() => {
+    if (!socket || !user?.token) return undefined
+
+    const handlePotentialUnreadChange = () => {
+      refreshUnreadMessageCount()
+    }
+
+    socket.on('message:received', handlePotentialUnreadChange)
+    return () => {
+      socket.off('message:received', handlePotentialUnreadChange)
+    }
+  }, [socket, user?.token, refreshUnreadMessageCount])
+
+  useEffect(() => {
+    if (!user?.token) return undefined
+
+    const intervalId = window.setInterval(() => {
+      refreshUnreadMessageCount()
+    }, 60000)
+
+    return () => window.clearInterval(intervalId)
+  }, [user?.token, refreshUnreadMessageCount])
+
   const login = (userData, token) => {
     localStorage.setItem('token', token)
     setUser(userData || { token })
@@ -106,7 +149,7 @@ export const AuthProvider = ({ children }) => {
   }
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, socket }}>
+    <AuthContext.Provider value={{ user, login, logout, socket, unreadMessageCount, refreshUnreadMessageCount }}>
       {children}
     </AuthContext.Provider>
   )

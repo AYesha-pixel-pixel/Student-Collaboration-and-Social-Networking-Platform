@@ -308,14 +308,25 @@ router.get('/discover', auth, async (req, res) => {
       visibility: 'public',
       _id: { $nin: activeSocietyIds }
     })
-      .sort({ createdAt: -1 })
       .populate(societyPopulateOptions)
 
-    res.json(societies.map((society) => ({
-      ...society.toObject(),
-      isFollowing: followedSocietyIds.some((id) => id.toString() === society._id.toString()),
-      isMember: activeSocietyIds.some((id) => id.toString() === society._id.toString())
-    })))
+    const discoveredSocieties = societies
+      .map((society) => {
+        const memberCount = (society.members || []).filter((member) => member.status === 'active').length
+
+        return {
+          ...society.toObject(),
+          memberCount,
+          isFollowing: followedSocietyIds.some((id) => id.toString() === society._id.toString()),
+          isMember: activeSocietyIds.some((id) => id.toString() === society._id.toString())
+        }
+      })
+      .sort((a, b) => {
+        if (b.memberCount !== a.memberCount) return b.memberCount - a.memberCount
+        return new Date(b.createdAt || 0) - new Date(a.createdAt || 0)
+      })
+
+    res.json(discoveredSocieties)
   } catch (err) {
     res.status(500).json({ error: 'Server error' })
   }

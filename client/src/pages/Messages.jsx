@@ -66,7 +66,7 @@ const Key = ({ letter, color, style }) => (
 const Messages = () => {
   const { userId } = useParams()
   const navigate = useNavigate()
-  const { user, socket, logout } = useAuth()
+  const { user, socket, logout, refreshUnreadMessageCount } = useAuth()
   const [profile, setProfile] = useState(null)
   const [conversation, setConversation] = useState(null)
   const [messages, setMessages] = useState([])
@@ -124,6 +124,38 @@ const Messages = () => {
       socket.emit('conversation:leave', { conversationId: conversation._id })
     }
   }, [socket, conversation?._id])
+
+  useEffect(() => {
+    if (!conversation?._id || !currentUserId || messages.length === 0) return undefined
+
+    const unreadMessages = messages.filter(
+      (message) => message.senderId?._id !== currentUserId && !message.readBy?.some((userId) => userId?.toString() === currentUserId)
+    )
+
+    if (unreadMessages.length === 0) return undefined
+
+    let active = true
+
+    const markMessagesAsRead = async () => {
+      try {
+        await Promise.all(
+          unreadMessages.map((message) => api.patch(`/messages/${message._id}/read`))
+        )
+
+        if (active) {
+          refreshUnreadMessageCount()
+        }
+      } catch {
+        return undefined
+      }
+    }
+
+    markMessagesAsRead()
+
+    return () => {
+      active = false
+    }
+  }, [conversation?._id, currentUserId, messages, refreshUnreadMessageCount])
 
   const handleSend = async (event) => {
     event.preventDefault()

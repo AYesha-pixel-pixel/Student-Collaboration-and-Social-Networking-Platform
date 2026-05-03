@@ -52,6 +52,15 @@ const SocietiesHome = () => {
   const handleLogout = () => { logout(); navigate('/login', { replace: true }) }
   const activeMemberships  = mySocieties.filter(m => m.status === 'active')
   const invitedMemberships = mySocieties.filter(m => m.status === 'invited' || m.status === 'pending')
+  const discoverSorted = useMemo(() => {
+    return [...discoveries].sort((a, b) => {
+      const aMembers = a.memberCount ?? (Array.isArray(a.members) ? a.members.filter((member) => member.status === 'active').length : 0)
+      const bMembers = b.memberCount ?? (Array.isArray(b.members) ? b.members.filter((member) => member.status === 'active').length : 0)
+
+      if (bMembers !== aMembers) return bMembers - aMembers
+      return new Date(b.createdAt || 0) - new Date(a.createdAt || 0)
+    })
+  }, [discoveries])
 
   const s = {
     page: {
@@ -290,11 +299,11 @@ const SocietiesHome = () => {
                     <h2 style={s.panelTitle}>Discover</h2>
                     <span style={s.panelCount}>{discoveries.length} public</span>
                   </div>
-                  {discoveries.length === 0 ? (
+                    {discoverSorted.length === 0 ? (
                     <p style={s.empty}>No societies have been created yet.</p>
                   ) : (
                     <div style={s.list}>
-                      {discoveries.map(society => (
+                        {discoverSorted.map(society => (
                         <button key={society._id} className="soc-card" style={s.card}
                           onClick={() => navigate(`/societies/${society.slug}`)}>
                           <div style={s.cardTop}>
@@ -305,6 +314,7 @@ const SocietiesHome = () => {
                             <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
                               <span style={s.badge}>{society.visibility}</span>
                               {society.settings?.inviteOnly && <span style={s.badgeAccent}>invite only</span>}
+                                <span style={s.badge}>{society.memberCount ?? (Array.isArray(society.members) ? society.members.filter((member) => member.status === 'active').length : 0)} members</span>
                             </div>
                           </div>
                           <p style={s.cardDesc}>{society.description || 'No description provided.'}</p>

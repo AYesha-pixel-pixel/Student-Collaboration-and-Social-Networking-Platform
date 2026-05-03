@@ -13,6 +13,9 @@
   padding: 1.4rem 1.5rem 1.6rem;
   box-sizing: border-box;
   box-shadow: 0 8px 28px rgba(0, 0, 0, 0.1);
+  font-family: 'Nunito', sans-serif;
+  color: #1a1a1a;
+  line-height: 1.6;
 }
 
 .post-detail-title-row {
@@ -28,6 +31,7 @@
   font-size: 1.35rem;
   color: #1a4a1a;
   font-family: 'Playfair Display', Georgia, serif;
+  letter-spacing: -0.02em;
 }
 
 .post-detail-link {
@@ -35,6 +39,7 @@
   text-decoration: none;
   font-size: 0.9rem;
   font-weight: 800;
+  font-family: 'Nunito', sans-serif;
 }
 
 .post-detail-link:hover {
@@ -49,6 +54,7 @@
   font-size: 0.9rem;
   margin-bottom: 0.85rem;
   font-weight: 600;
+  font-family: 'Nunito', sans-serif;
 }
 
 .post-detail-author-wrap {
@@ -71,10 +77,19 @@
   font-size: 1.05rem;
   color: #1a4a1a;
   font-family: 'Playfair Display', Georgia, serif;
+  letter-spacing: -0.02em;
 }
 
 .post-detail-card .post-content {
   color: #1a1a1a;
+}
+
+.post-detail-card .post-footer,
+.post-detail-card .post-footer button,
+.post-detail-card .post-footer .badge,
+.post-detail-card .profile-link-inline,
+.post-detail-card .post-detail-author-subtitle {
+  font-family: 'Nunito', sans-serif;
 }
 
 .post-detail-floating {

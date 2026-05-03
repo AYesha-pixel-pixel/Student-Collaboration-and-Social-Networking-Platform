@@ -145,6 +145,23 @@
   color: #1a4a1a;
 }
 
+.messages-conversation-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.4rem;
+  height: 1.4rem;
+  padding: 0 0.4rem;
+  border-radius: 999px;
+  background: #c62828;
+  color: #fff;
+  font-family: 'Nunito', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 800;
+  line-height: 1;
+  vertical-align: middle;
+}
+
 .messages-sub {
   margin: 0 0 16px;
   font-size: 0.95rem;
@@ -499,16 +516,25 @@
 
 .post-graphic-wrap {
   margin: 6px 0 12px;
+  height: clamp(220px, 42vw, 360px);
+  background: #000;
+  border: 2px solid #111;
+  border-radius: 14px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .post-graphic {
   display: block;
   width: 100%;
-  max-height: 360px;
-  object-fit: cover;
-  border-radius: 14px;
-  border: 2px solid #b5cc7a;
-  background: #e8f5e0;
+  height: 100%;
+  max-height: none;
+  object-fit: contain;
+  object-position: center;
+  border-radius: inherit;
+  background: #000;
 }
 
 .post-edit-textarea {

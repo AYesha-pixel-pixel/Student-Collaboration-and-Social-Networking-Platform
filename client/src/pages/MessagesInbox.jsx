@@ -166,7 +166,8 @@ const MessagesInbox = () => {
           upsertConversation({
             ...existingConversation,
             latestMessage: message,
-            updatedAt: message.createdAt || new Date().toISOString()
+            updatedAt: message.createdAt || new Date().toISOString(),
+            unreadCount: (existingConversation.unreadCount || 0) + (message.senderId?._id !== currentUserId ? 1 : 0)
           })
           return
         }
@@ -175,7 +176,8 @@ const MessagesInbox = () => {
         upsertConversation({
           ...conversationRes.data,
           latestMessage: message,
-          updatedAt: message.createdAt || new Date().toISOString()
+          updatedAt: message.createdAt || new Date().toISOString(),
+          unreadCount: message.senderId?._id !== currentUserId ? 1 : 0
         })
       } catch {
         return undefined
@@ -270,8 +272,11 @@ const MessagesInbox = () => {
                       size={42}
                     />
                     <div style={{ flex: 1 }}>
-                        <div style={{ fontWeight: 600 }}>
+                        <div style={{ fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
                         {otherParticipant?.name || otherParticipant?.username || 'Conversation'}
+                        {conversation.unreadCount > 0 && (
+                          <span className="messages-conversation-badge">{conversation.unreadCount > 99 ? '99+' : conversation.unreadCount}</span>
+                        )}
                       </div>
                         <div style={{ fontSize: '0.88rem', color: '#666' }}>
                           {conversation.latestMessage?.content || 'No messages yet'}
