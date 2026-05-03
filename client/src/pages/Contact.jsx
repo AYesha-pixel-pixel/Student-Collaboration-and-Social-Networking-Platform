@@ -53,13 +53,13 @@ const Contact = () => {
             <span className="contact-badge badge rounded-pill text-uppercase">Contact</span>
             <h1>Let us know what you need</h1>
             <p>
-              Have feedback or questions about StudentNet? Send a note and we will help.
+              Have feedback or questions about UNIVERSE? Send a note and we will help.
             </p>
 
             <div className="contact-details d-grid gap-3">
               <div>
                 <span>Email</span>
-                <strong>support@studentnet.edu</strong>
+                <strong>support@universe.edu</strong>
               </div>
               <div>
                 <span>Office</span>
