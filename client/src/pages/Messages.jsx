@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState, useRef } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import api from '../api/index'
 import { useAuth } from '../context/useAuth'
@@ -74,8 +74,13 @@ const Messages = () => {
   const [loading, setLoading] = useState(true)
   const [sending, setSending] = useState(false)
   const [error, setError] = useState('')
+  const messagesEndRef = useRef(null)
 
   const currentUserId = useMemo(() => user?.token ? JSON.parse(atob(user.token.split('.')[1])).userId : null, [user?.token])
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }, [messages])
 
   useEffect(() => {
     if (!userId) return
@@ -279,6 +284,7 @@ const Messages = () => {
                   )
                 })
               )}
+              <div ref={messagesEndRef} />
             </div>
 
             <form onSubmit={handleSend} className="profile-actions-row" style={{ alignItems: 'stretch' }}>

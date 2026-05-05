@@ -50,6 +50,7 @@ const SocietyDetail = () => {
   const [creatingSection, setCreatingSection] = useState(false)
   const [postContent, setPostContent] = useState('')
   const [postSectionId, setPostSectionId] = useState('')
+  const [postImageFile, setPostImageFile] = useState(null)
   const [posting, setPosting] = useState(false)
   const [assignSectionUserId, setAssignSectionUserId] = useState('')
   const [assignSectionSectionId, setAssignSectionSectionId] = useState('')
@@ -180,13 +181,19 @@ const SocietyDetail = () => {
     try {
       setPosting(true)
       setError('')
-      await postToSociety({
-        content: postContent.trim(),
-        societyId: society.society._id,
-        sectionId: postSectionId || undefined,
-      })
+      const formData = new FormData()
+      formData.append('content', postContent.trim())
+      formData.append('societyId', society.society._id)
+      if (postSectionId) formData.append('sectionId', postSectionId)
+      if (postImageFile) formData.append('image', postImageFile)
+
+      await postToSociety(formData)
       setPostContent('')
       setPostSectionId('')
+      setPostImageFile(null)
+      // Clear file input manually
+      const fileInput = document.getElementById('society-post-image-upload')
+      if (fileInput) fileInput.value = ''
       await loadDetail(selectedSectionId, true)
     } catch (err) {
       setError(err?.response?.data?.error || 'Failed to create post')
@@ -269,7 +276,7 @@ const SocietyDetail = () => {
 
   const buttonStyle = (extra = {}) => ({
     padding: '8px 18px',
-    borderRadius: 10,
+    borderRadius: 999,
     fontWeight: 700,
     fontSize: '0.85rem',
     border: '2px solid #1a4a1a',
@@ -277,6 +284,12 @@ const SocietyDetail = () => {
     color: '#1a4a1a',
     cursor: 'pointer',
     fontFamily: "'Nunito', sans-serif",
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    textDecoration: 'none',
+    minHeight: '38px',
+    boxSizing: 'border-box',
     ...extra,
   })
 
@@ -306,30 +319,29 @@ const SocietyDetail = () => {
                 <div style={s.heroBrand}>
                   <Avatar src={society.society?.picture} name={society.society?.name} size={72} />
                   <div style={s.heroInfo}>
-                    <p style={s.kicker}>{society.society?.visibility} society</p>
                     <h1 style={s.heroName}>{society.society?.name}</h1>
                     <p style={s.heroDesc}>{society.society?.description || 'No description yet.'}</p>
                     <div style={s.badgeRow}>
-                      <span style={s.badge}>{society.society?.visibility}</span>
-                      {society.society?.settings?.inviteOnly && <span style={{ ...s.badge, ...s.badgeAccent }}>invite only</span>}
-                      {isInvited && <span style={{ ...s.badge, ...s.badgeAccent }}>invited</span>}
+                      <span style={s.badge}>{society.society?.visibility === 'public' ? 'Public' : 'Private'}</span>
+                      {society.society?.settings?.inviteOnly && <span style={{ ...s.badge, ...s.badgeAccent }}>Invite only</span>}
+                      {isInvited && <span style={{ ...s.badge, ...s.badgeAccent }}>Invited</span>}
                     </div>
                     <div style={s.heroActions}>
                       {canManageSociety && (
-                        <Link to={`/societies/${society.society?.slug || society.society?._id}/manage`} className="btn btn-outline-success rounded-pill">
-                          Manage People
+                        <Link to={`/societies/${society.society?.slug || society.society?._id}/manage`} style={buttonStyle()} className="sm-aBtn">
+                          Manage people
                         </Link>
                       )}
                       {(canJoinSociety || canAcceptInvite) && (
-                        <button type="button" style={{ ...buttonStyle(), background: '#1a4a1a', color: '#fff', border: 'none' }} onClick={handleJoin} disabled={busyAction === 'join' || isMember}>
-                          {busyAction === 'join' ? 'Joining…' : (canAcceptInvite ? 'Accept Invite' : 'Join')}
+                        <button type="button" className="sm-aBtnP" style={{ ...buttonStyle(), background: '#1a4a1a', color: '#fff', border: 'none' }} onClick={handleJoin} disabled={busyAction === 'join' || isMember}>
+                          {busyAction === 'join' ? 'Joining…' : (canAcceptInvite ? 'Accept invite' : 'Join')}
                         </button>
                       )}
-                      <button type="button" style={buttonStyle(isFollowing ? { background: '#e8f5e0' } : {})} onClick={handleFollow} disabled={busyAction === 'follow'}>
+                      <button type="button" className="sm-aBtn" style={buttonStyle(isFollowing ? { background: '#e8f5e0' } : {})} onClick={handleFollow} disabled={busyAction === 'follow'}>
                         {isFollowing ? 'Unfollow' : 'Follow'}
                       </button>
                       {canLeaveSociety && (
-                        <button type="button" style={buttonStyle({ borderColor: '#c62828', color: '#c62828' })} onClick={handleLeave} disabled={busyAction === 'leave'}>
+                        <button type="button" className="sm-aBtnD" style={buttonStyle({ borderColor: '#c62828', color: '#c62828' })} onClick={handleLeave} disabled={busyAction === 'leave'}>
                           {busyAction === 'leave' ? 'Leaving…' : 'Leave'}
                         </button>
                       )}
@@ -363,16 +375,24 @@ const SocietyDetail = () => {
                       <label style={s.label}>Content</label>
                       <textarea style={s.textarea} rows={4} placeholder="Share an update with the society…" value={postContent} onChange={(e) => setPostContent(e.target.value)} />
                     </div>
-                    <div style={s.fieldWrap}>
-                      <label style={s.label}>Section</label>
-                      <select style={s.select} value={postSectionId} onChange={(e) => setPostSectionId(e.target.value)}>
-                        <option value="">General</option>
-                        {sections.map((section) => <option key={section._id} value={section._id}>{section.name}</option>)}
-                      </select>
+                    <div style={{ ...s.fieldWrap, display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+                      <div style={{ flex: 1, minWidth: 'min-content' }}>
+                        <label style={s.label}>Image (Optional)</label>
+                        <input id="society-post-image-upload" type="file" accept="image/*" className="form-control" style={{ background: '#f0f7f0', border: '2px solid #43a047' }} onChange={(e) => setPostImageFile(e.target.files?.[0] || null)} />
+                      </div>
+                      <div style={{ flex: 1, minWidth: 'min-content' }}>
+                        <label style={s.label}>Section</label>
+                        <select style={s.select} value={postSectionId} onChange={(e) => setPostSectionId(e.target.value)}>
+                          <option value="">General</option>
+                          {sections.map((section) => <option key={section._id} value={section._id}>{section.name}</option>)}
+                        </select>
+                      </div>
                     </div>
-                    <button type="submit" className="btn btn-success rounded-pill" disabled={posting || !postContent.trim()}>
-                      {posting ? 'Posting…' : 'Post to Society'}
-                    </button>
+                    <div style={{ marginTop: '1rem' }}>
+                      <button type="submit" className="btn btn-success rounded-pill" disabled={posting || !postContent.trim()}>
+                        {posting ? 'Posting…' : 'Post to Society'}
+                      </button>
+                    </div>
                   </form>
                 </div>
               )}
@@ -458,10 +478,6 @@ const SocietyDetail = () => {
                     <div style={s.fieldWrap}>
                       <label style={s.label}>Description</label>
                       <textarea style={s.textarea} rows={3} value={editDescription} onChange={(e) => setEditDescription(e.target.value)} />
-                    </div>
-                    <div style={s.fieldWrap}>
-                      <label style={s.label}>Picture URL</label>
-                      <input style={s.input} placeholder="https://…" value={editPicture} onChange={(e) => setEditPicture(e.target.value)} />
                     </div>
                     <div style={s.fieldWrap}>
                       <label style={s.label}>Upload Picture</label>
