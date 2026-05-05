@@ -42,17 +42,22 @@ const Login = () => {
   const { login } = useAuth()
   const navigate = useNavigate()
 
+  const isValidEmail = (value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
+
   const handleSubmit = async (e) => {
     e.preventDefault()
     setError('')
 
+    const normalizedEmail = email.trim().toLowerCase()
+
     // Frontend validation
-    if (!email.trim()) return setError('Email is required')
+    if (!normalizedEmail) return setError('Email is required')
+    if (!isValidEmail(normalizedEmail)) return setError('Enter a valid email address')
     if (!password) return setError('Password is required')
 
     try {
       setLoading(true)
-      const data = await loginUser(email, password)
+      const data = await loginUser(normalizedEmail, password)
       login({ token: data.token }, data.token)
       localStorage.setItem('token', data.token)
       navigate('/feed', { replace: true })

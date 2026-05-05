@@ -40,16 +40,27 @@ const Register = () => {
 
   const navigate = useNavigate()
 
+  const isValidEmail = (value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
+  const isValidUsername = (value) => /^[a-zA-Z0-9_]{3,20}$/.test(value)
+
   const handleSubmit = async (e) => {
     e.preventDefault()
     setError('')
-    if (!name.trim()) return setError('Name is required')
-    if (!username.trim()) return setError('Username is required')
-    if (!email.trim()) return setError('Email is required')
+    const normalizedName = name.trim()
+    const normalizedUsername = username.trim()
+    const normalizedEmail = email.trim().toLowerCase()
+
+    if (!normalizedName) return setError('Name is required')
+    if (!normalizedUsername) return setError('Username is required')
+    if (!isValidUsername(normalizedUsername)) {
+      return setError('Username must be 3-20 characters and use letters, numbers, or underscores')
+    }
+    if (!normalizedEmail) return setError('Email is required')
+    if (!isValidEmail(normalizedEmail)) return setError('Enter a valid email address')
     if (password.length < 6) return setError('Password must be at least 6 characters')
     try {
       setLoading(true)
-      await registerUser(name, username, email, password)
+      await registerUser(normalizedName, normalizedUsername, normalizedEmail, password)
       navigate('/login', { replace: true })
     } catch (err) {
       setError(err.response?.data?.error || 'Registration failed. Try again.')

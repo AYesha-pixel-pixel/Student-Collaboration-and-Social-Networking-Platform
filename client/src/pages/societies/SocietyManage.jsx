@@ -452,7 +452,6 @@ const SocietyManage = () => {
                         <div key={level} style={s.privCard}>
                           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
                             <p style={s.privName}>{info.label}</p>
-                            <span style={s.badge}>{level}</span>
                           </div>
                           <p style={s.privDesc}>{info.description}</p>
                           <ul style={s.privGrants}>
