@@ -271,11 +271,13 @@ const SocietyManage = () => {
 
     actionsRow: { display: 'flex', gap: 10, marginTop: 8, flexWrap: 'wrap' },
     aBtn: {
-      padding: '8px 18px', borderRadius: 10, fontWeight: 700, fontSize: '0.85rem',
+      padding: '8px 18px', borderRadius: 999, fontWeight: 700, fontSize: '0.85rem',
       border: '2px solid #1a4a1a', background: 'none', color: '#1a4a1a',
       cursor: 'pointer', fontFamily: "'Nunito', sans-serif",
+      display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+      minHeight: '38px', boxSizing: 'border-box'
     },
-    aBtnP: { background: '#1a4a1a', color: '#fff', border: 'none' },
+    aBtnP: { background: '#1a4a1a', color: '#fff', borderColor: '#1a4a1a' },
     aBtnW: { borderColor: '#e6a817', color: '#7a4a00' },
     aBtnD: { borderColor: '#c62828', color: '#c62828' },
 
@@ -445,7 +447,7 @@ const SocietyManage = () => {
                         <h2 style={s.cardTitle}>Privilege levels</h2>
                         <p style={s.cardSub}>Use these to grant access without changing membership itself.</p>
                       </div>
-                      <span style={s.badge}>{Object.keys(PRIVILEGE_GUIDE).length} levels</span>
+                      <span style={s.badge}>{Object.keys(PRIVILEGE_GUIDE).length} {Object.keys(PRIVILEGE_GUIDE).length === 1 ? 'level' : 'levels'}</span>
                     </div>
                     <div style={s.privGrid}>
                       {Object.entries(PRIVILEGE_GUIDE).map(([level, info]) => (
@@ -533,7 +535,7 @@ const SocietyManage = () => {
                         <h2 style={s.cardTitle}>Members</h2>
                         <p style={s.cardSub}>Adjust privileges, ban, or remove members.</p>
                       </div>
-                      <span style={s.badge}>{activeMembers.length} active</span>
+                      <span style={s.badge}>{activeMembers.length} {activeMembers.length === 1 ? 'active member' : 'active members'}</span>
                     </div>
 
                     {activeMembers.length === 0
@@ -582,7 +584,7 @@ const SocietyManage = () => {
                           <h2 style={s.cardTitle}>Invited users</h2>
                           <p style={s.cardSub}>These users haven't joined yet — they'll see Accept Invite on the society page.</p>
                         </div>
-                        <span style={{ ...s.badge, ...s.badgeWarn }}>{invitedMembers.length} invited</span>
+                        <span style={{ ...s.badge, ...s.badgeWarn }}>{invitedMembers.length} {invitedMembers.length === 1 ? 'invited user' : 'invited users'}</span>
                       </div>
                       {invitedMembers.map((member) => {
                         const memberId = member.userId?._id
@@ -608,7 +610,7 @@ const SocietyManage = () => {
                         <h2 style={s.cardTitle}>Banned users</h2>
                         <p style={s.cardSub}>Review and restore access when needed.</p>
                       </div>
-                      <span style={{ ...s.badge, ...s.badgeDanger }}>{bannedMembers.length} banned</span>
+                      <span style={{ ...s.badge, ...s.badgeDanger }}>{bannedMembers.length} {bannedMembers.length === 1 ? 'banned user' : 'banned users'}</span>
                     </div>
                     {bannedMembers.length === 0
                       ? <p style={s.emptyText}>No banned users.</p>
