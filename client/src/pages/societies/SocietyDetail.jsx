@@ -294,9 +294,15 @@ const SocietyDetail = () => {
   })
 
   return (
-    <div style={s.page}>
-      <Navbar
-        links={[
+    <>
+      <style>{`
+        .sm-aBtn:hover { background:#e8f5e0 !important; }
+        .sm-aBtnP:hover { background:#2e7d32 !important; }
+        .sm-aBtnD:hover { background:#ffeef0 !important; }
+      `}</style>
+      <div style={s.page}>
+        <Navbar
+          links={[
           { to: '/feed', label: 'Feed' },
           { to: '/create-post', label: 'Create Post' },
           { to: '/societies', label: 'Societies' },
@@ -529,6 +535,7 @@ const SocietyDetail = () => {
 
       <footer style={s.footer}>✦ UNIVERSE — made with ♥ ✦</footer>
     </div>
+    </>
   )
 }
 
