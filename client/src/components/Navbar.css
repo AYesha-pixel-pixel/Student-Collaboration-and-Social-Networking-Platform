@@ -4,7 +4,7 @@
   position: sticky;
   top: 0;
   z-index: 1000;
-  background: rgba(247, 243, 238, 0.94);
+  background: rgba(190, 232, 131, 0.94);
   backdrop-filter: blur(10px);
   border-bottom: 1px solid rgba(26, 74, 26, 0.12);
 }
